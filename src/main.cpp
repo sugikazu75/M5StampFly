@@ -24,18 +24,34 @@
  */
 
 #include <Arduino.h>
-#include <FastLED.h>
-#include "flight_control.hpp"
+// #include <FastLED.h>
+// #include "flight_control.hpp"
+#include <Bitcraze_PMW3901.h>
 
 // VL53L0X_ADDRESS           0x29
 // MPU6886_ADDRESS           0x68
 // BMP280_ADDRESS            0x76
 
+Bitcraze_PMW3901 flow(12);
+
 void setup() {
-    init_copter();
-    delay(100);
+  USBSerial.begin(115200);
+  delay(1000);
+  USBSerial.printf("serial begin!\r\n");
+
+  boolean success = flow.begin();
+  delay(1000);
+
+  USBSerial.printf("flow begin\n");
+  if(success)
+    USBSerial.printf("flow success\n");
+  else
+    USBSerial.printf("flow fail\n");
+
+    // init_copter();
+    // delay(100);
 }
 
 void loop() {
-    loop_400Hz();
+    // loop_400Hz();
 }
