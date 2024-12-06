@@ -52,6 +52,16 @@ void setup() {
     // delay(100);
 }
 
+int16_t flow_deltaX, flow_deltaY;
 void loop() {
     // loop_400Hz();
+  flow.readMotionCount(&flow_deltaX, &flow_deltaY);
+
+  USBSerial.print("X: ");
+  USBSerial.print(flow_deltaX);
+  USBSerial.print(", Y: ");
+  USBSerial.print(flow_deltaY);
+  USBSerial.print("\n");
+
+  delay(100);
 }
