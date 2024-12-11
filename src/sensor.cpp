@@ -137,6 +137,7 @@ void sensor_init() {
     }
 
     tof_init();
+    spi_init();
     imu_init();
     Drone_ahrs.begin(400.0);
     ina3221.begin(&Wire1);
