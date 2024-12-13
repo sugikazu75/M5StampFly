@@ -5,7 +5,7 @@
  */
 #include "Arduino.h"
 #include <driver/ledc.h>
-#include "buzzer.h"
+#include "devices/buzzer/buzzer.h"
 
 const int buzzerPin = 40;
 const int channel   = 5;

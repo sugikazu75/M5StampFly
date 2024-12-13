@@ -41,10 +41,10 @@
 #include "rc.hpp"
 #include "pid.hpp"
 #include "sensor.hpp"
-#include "led.hpp"
+#include "devices/led/led.hpp"
 #include "telemetry.hpp"
-#include "button.hpp"
-#include "buzzer.h"
+#include "devices/button/button.hpp"
+#include "devices/buzzer/buzzer.h"
 
 // モータPWM出力Pinのアサイン
 // Motor PWM Pin

@@ -3,10 +3,10 @@
  *
  * SPDX-License-Identifier: MIT
  */
-#include "button.hpp"
+#include "devices/button/button.hpp"
 #include "OneButton.h"
-#include "led.hpp"
-#include "buzzer.h"
+#include "devices/led/led.hpp"
+#include "devices/buzzer/buzzer.h"
 
 #define PIN_INPUT 0
 

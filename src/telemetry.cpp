@@ -26,7 +26,7 @@
 #include "telemetry.hpp"
 
 #include "rc.hpp"
-#include "led.hpp"
+#include "devices/led/led.hpp"
 #include "sensor.hpp"
 #include "flight_control.hpp"
 

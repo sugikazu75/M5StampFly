@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-#include "led.hpp"
+#include "devices/led/led.hpp"
 #include "sensor.hpp"
 #include "rc.hpp"
 #include "flight_control.hpp"
