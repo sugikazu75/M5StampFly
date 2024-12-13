@@ -39,7 +39,7 @@
 
 #include "flight_control.hpp"
 #include "rc.hpp"
-#include "pid.hpp"
+#include "utils/pid/pid.hpp"
 #include "sensor.hpp"
 #include "devices/led/led.hpp"
 #include "telemetry.hpp"

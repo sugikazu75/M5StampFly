@@ -23,8 +23,7 @@
  * SOFTWARE.
  */
 
-#include <Arduino.h>
-#include "pid.hpp"
+#include "utils/pid/pid.hpp"
 
 PID::PID() {
     m_kp           = 1.0e-8f;
@@ -56,9 +55,6 @@ void PID::reset(void) {
 void PID::i_reset(void) {
     m_integral = 0.0f;
 }
-void PID::printGain(void) {
-    Serial.printf("#Kp:%8.4f Ti:%8.4f Td:%8.4f Eta:%8.4f h:%8.4f\r\n", m_kp, m_ti, m_td, m_eta, m_h);
-}
 
 void PID::set_error(float err) {
     m_err = err;
@@ -77,26 +73,4 @@ float PID::update(float err, float h) {
                      2 * m_td * (err - m_err) / (2 * m_eta * m_td + m_h);
     m_err = err;
     return m_kp * (err + m_integral + m_differential);
-}
-
-Filter::Filter() {
-    m_state = 0.0f;
-    m_T     = 0.0025f;
-    m_h     = 0.0025f;
-}
-
-void Filter::reset(void) {
-    m_state = 0.0f;
-}
-
-void Filter::set_parameter(float T, float h) {
-    m_T = T;
-    m_h = h;
-}
-
-float Filter::update(float u, float h) {
-    m_h     = h;
-    m_state = m_state * m_T / (m_T + m_h) + u * m_h / (m_T + m_h);
-    m_out   = m_state;
-    return m_out;
 }

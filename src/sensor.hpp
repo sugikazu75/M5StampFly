@@ -28,7 +28,8 @@
 
 #include <Arduino.h>
 #include "flight_control.hpp"
-#include "pid.hpp"
+#include "utils/pid/pid.hpp"
+#include "utils/lpf/lpf.hpp"
 #include <INA3221.h>
 #include <MadgwickAHRS.h>
 #include <stdint.h>
