@@ -168,6 +168,8 @@ void sensor_init() {
     raw_az_d_filter.set_parameter(0.1, 0.0025);  // alt158
     az_filter.set_parameter(0.1, 0.0025);        // alt158
     alt_filter.set_parameter(0.005, 0.0025);
+
+    EstimatedAltitude.initialize();
 }
 
 float sensor_read(void) {
