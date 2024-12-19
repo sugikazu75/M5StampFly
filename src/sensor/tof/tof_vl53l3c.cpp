@@ -1,9 +1,5 @@
 #include <sensor/tof/tof_vl53l3c.hpp>
-
-
-
 TofVL53L3C* TofVL53L3C::instance = nullptr;
-
 
 void IRAM_ATTR tof_int_wrapper() {
     if (TofVL53L3C::instance) {
@@ -15,16 +11,28 @@ void IRAM_ATTR TofVL53L3C::tof_int() {
     ToF_bottom_data_ready_flag_ = 1;
 }
 
-void TofVL53L3C::initialize(VL53LX_DEV dev) {
+int16_t TofVL53L3C::get_front_range() {
+    VL53LX_DEV ToF_front  = &tof_front;
+    return tof_get_range(*ToF_front);
+}
+
+int16_t TofVL53L3C::get_bottom_range() {
+    VL53LX_DEV ToF_bottom  = &tof_bottom;
+    return tof_get_range(*ToF_bottom);
+}
+
+void TofVL53L3C::initialize() {
 
     VL53LX_DEV ToF_front  = &tof_front;
     VL53LX_DEV ToF_bottom = &tof_bottom;
-    dev_ = dev;
     uint8_t byteData;
     uint16_t wordData;
 
-    dev_->comms_speed_khz   = 400;
-    dev_->i2c_slave_address = 0x29;
+    tof_front.comms_speed_khz   = 400;
+    tof_front.i2c_slave_address = 0x29;
+
+    tof_bottom.comms_speed_khz   = 400;
+    tof_bottom.i2c_slave_address = 0x29;
 
     // USBSerial.printf("#tof_i2c_init_status:%d\r\n",vl53lx_i2c_init());
 
@@ -81,7 +89,7 @@ void TofVL53L3C::initialize(VL53LX_DEV dev) {
     USBSerial.printf("#Start Measurement Status:%d\n\r", VL53LX_StartMeasurement(ToF_bottom));
 }
 
-int16_t TofVL53L3C::tof_get_range() {
+int16_t TofVL53L3C::tof_get_range(VL53LX_Dev_t dev) {
     int16_t range;
     int16_t range_min;
     int16_t range_max;
@@ -92,7 +100,7 @@ int16_t TofVL53L3C::tof_get_range() {
     VL53LX_MultiRangingData_t *pMultiRangingData = &MultiRangingData;
 
     // uint32_t start_time = micros();
-    VL53LX_GetMultiRangingData(dev_, pMultiRangingData);
+    VL53LX_GetMultiRangingData(&dev, pMultiRangingData);
     // uint32_t end_time = micros();
     // USBSerial.printf("ToF Time%f\n", (float)(end_time - start_time)*1.0e-6);
     uint8_t no_of_object_found = pMultiRangingData->NumberOfObjectsFound;
@@ -118,11 +126,11 @@ int16_t TofVL53L3C::tof_get_range() {
         // USBSerial.printf("Max %d mm\n\r", range_max);
         if (count != 0) range_ave = range_ave / count;
     }
-    VL53LX_ClearInterruptAndStartMeasurement(dev_);
+    VL53LX_ClearInterruptAndStartMeasurement(&dev);
     return range_max;
 }
 
-void TofVL53L3C::tof_test_ranging() {
+void TofVL53L3C::tof_test_ranging(VL53LX_DEV dev) {
     uint8_t status     = 0;
     uint8_t data_ready = 0;
     int16_t range;
@@ -130,10 +138,10 @@ void TofVL53L3C::tof_test_ranging() {
     VL53LX_MultiRangingData_t *pMultiRangingData = &MultiRangingData;
 
     if (status == 0) {
-        status = VL53LX_ClearInterruptAndStartMeasurement(dev_);
+        status = VL53LX_ClearInterruptAndStartMeasurement(dev);
     }
     delay(100);
-    USBSerial.printf("#Start Measurement Status:%d\n\r", VL53LX_StartMeasurement(dev_));
+    USBSerial.printf("#Start Measurement Status:%d\n\r", VL53LX_StartMeasurement(dev));
 
     USBSerial.printf("#Count ObjNo Status Range Signal(Mcps) Ambient(Mcps)\n\r");
 
@@ -149,11 +157,11 @@ void TofVL53L3C::tof_test_ranging() {
         // VL53LX_WaitMeasurementDataReady(dev);
         // if(digitalRead(INT_BOTTOM)==0)
 
-        VL53LX_GetMeasurementDataReady(dev_, &data_ready);
+        VL53LX_GetMeasurementDataReady(dev, &data_ready);
         if (data_ready == 1) {
             data_ready = 0;
             count++;
-            VL53LX_GetMultiRangingData(dev_, pMultiRangingData);
+            VL53LX_GetMultiRangingData(dev, pMultiRangingData);
             old                        = now;
             now                        = micros();
             uint8_t no_of_object_found = pMultiRangingData->NumberOfObjectsFound;
@@ -168,7 +176,7 @@ void TofVL53L3C::tof_test_ranging() {
                                  MultiRangingData.RangeData[j].AmbientRateRtnMegaCps / 65536.0);
             }
 
-            VL53LX_ClearInterruptAndStartMeasurement(dev_);
+            VL53LX_ClearInterruptAndStartMeasurement(dev);
             end = micros();
             USBSerial.printf("%8.6f", (float)(end - now) * 1.0e-6);
             USBSerial.printf("\n\r");

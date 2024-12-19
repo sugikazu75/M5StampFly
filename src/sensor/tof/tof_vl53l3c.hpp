@@ -18,14 +18,17 @@ class TofVL53L3C : public Tof
 public:
   TofVL53L3C() {};
   ~TofVL53L3C() = default;
-
-  void initialize(VL53LX_DEV dev) override;
-  int16_t tof_get_range();
-  void tof_test_ranging();
-  void tof_int();
   static TofVL53L3C* instance;
-  volatile uint8_t ToF_bottom_data_ready_flag_;
+
+  void initialize() override;
+  int16_t get_front_range();
+  int16_t get_bottom_range();
+  void tof_int();
+  
+protected:
   VL53LX_Dev_t tof_front;
   VL53LX_Dev_t tof_bottom;
-protected:
+  int16_t tof_get_range(VL53LX_Dev_t dev);
+  void tof_test_ranging(VL53LX_DEV dev);
+  int16_t ToF_bottom_data_ready_flag_; 
 };
