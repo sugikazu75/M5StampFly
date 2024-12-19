@@ -43,6 +43,8 @@ class Alt_kalman {
   BLA::Matrix<3, 3> H_;
   BLA::Matrix<3, 3> G_;
 
+  float gravity_ = 9.80665;
+
   // Sensor
   // float z_sens;
 

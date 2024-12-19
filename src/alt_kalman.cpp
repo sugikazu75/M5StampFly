@@ -35,12 +35,12 @@ void Alt_kalman::initialize()
 {
   estimate_state_ = {0.0, 0.0, 0.0};
   predict_state_ = {0.0, 0.0, 0.0};
-  state_transition_model_ = {1.0, 0.0, -step,
+  state_transition_model_ = {1.0, 0.0, -gravity_ * step,
                              step, 1.0, 0.0,
                              0.0, 0.0, 1 + beta * step};
   state_transition_model_transpose_ = {1.0, step, 0.0,
                                        0.0, 1.0, 0.0,
-                                       -step, 0.0, 1.0 + beta * step};
+                                       -gravity_ * step, 0.0, 1.0 + beta * step};
   predict_P_ = {100.0, 0.0, 0.0,
                 0.0, 100.0, 0.0,
                 0.0, 0.0, 100.0};
@@ -71,7 +71,7 @@ void Alt_kalman::update(float z_sens, float accel, float h)
   step = h;
 
   // predict state
-  control_input_model_ = {accel * step, 0.0, 0.0};
+  control_input_model_ = {gravity_ * accel * step, 0.0, 0.0};
   predict_state_ = state_transition_model_ * estimate_state_ + control_input_model_;
 
   // predict P
