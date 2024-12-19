@@ -12,17 +12,14 @@ void IRAM_ATTR TofVL53L3C::tof_int() {
 }
 
 int16_t TofVL53L3C::get_front_range() {
-    VL53LX_DEV ToF_front  = &tof_front;
-    return tof_get_range(*ToF_front);
+    return tof_get_range(tof_front);
 }
 
 int16_t TofVL53L3C::get_bottom_range() {
-    VL53LX_DEV ToF_bottom  = &tof_bottom;
-    return tof_get_range(*ToF_bottom);
+    return tof_get_range(tof_bottom);
 }
 
 void TofVL53L3C::initialize() {
-
     VL53LX_DEV ToF_front  = &tof_front;
     VL53LX_DEV ToF_bottom = &tof_bottom;
     uint8_t byteData;

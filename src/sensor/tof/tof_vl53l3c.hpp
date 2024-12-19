@@ -24,11 +24,11 @@ public:
   int16_t get_front_range();
   int16_t get_bottom_range();
   void tof_int();
+  int16_t ToF_bottom_data_ready_flag_; 
   
 protected:
   VL53LX_Dev_t tof_front;
   VL53LX_Dev_t tof_bottom;
   int16_t tof_get_range(VL53LX_Dev_t dev);
   void tof_test_ranging(VL53LX_DEV dev);
-  int16_t ToF_bottom_data_ready_flag_; 
 };

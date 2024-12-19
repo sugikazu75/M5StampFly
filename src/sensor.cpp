@@ -128,8 +128,6 @@ void ahrs_reset(void) {
 }
 
 void sensor_init() {
-    USBSerial.printf("Inside of sensor_init.\r\n");
-
     Wire1.begin(SDA_PIN, SCL_PIN, 400000UL);
     if (scan_i2c() == 0) {
         USBSerial.printf("No I2C device!\r\n");
@@ -146,10 +144,10 @@ void sensor_init() {
 
     uint16_t cnt = 0;
     while (cnt < 10) {
-        if (ToF_bottom_data_ready_flag) {
-            ToF_bottom_data_ready_flag = 0;
+        if (tof.ToF_bottom_data_ready_flag_) {
+            tof.ToF_bottom_data_ready_flag_ = 0;
             cnt++;
-            USBSerial.printf("%d %d\n\r", cnt, tof.get_bottom_range());
+            USBSerial.printf("tof bottom, %d %d\n\r", cnt, tof.get_bottom_range());
         }
     }
     delay(10);
@@ -275,12 +273,12 @@ float sensor_read(void) {
         Az = az_filter.update(-Accel_z_d, sens_interval);
 
         if (dcnt > interval) {
-            if (ToF_bottom_data_ready_flag) {
+            if (tof.ToF_bottom_data_ready_flag_) {
                 dcnt                       = 0u;
                 old_alt_time               = alt_time;
                 alt_time                   = micros() * 1.0e-6;
                 h                          = alt_time - old_alt_time;
-                ToF_bottom_data_ready_flag = 0;
+                tof.ToF_bottom_data_ready_flag_ = 0;
 
                 // 距離の値の更新
                 // old_range[0] = dist;
