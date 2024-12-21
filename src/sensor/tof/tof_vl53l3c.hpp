@@ -16,8 +16,8 @@
 class TofVL53L3C : public Tof
 {
 public:
-  TofVL53L3C() {};
   ~TofVL53L3C() = default;
+  static TofVL53L3C* getInstance();
   static TofVL53L3C* instance;
 
   void initialize() override;
@@ -27,6 +27,8 @@ public:
   int16_t ToF_bottom_data_ready_flag_; 
   
 protected:
+  // singleton pattern
+  TofVL53L3C() {};
   VL53LX_Dev_t tof_front;
   VL53LX_Dev_t tof_bottom;
   int16_t tof_get_range(VL53LX_Dev_t dev);

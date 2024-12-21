@@ -2,12 +2,25 @@
 TofVL53L3C* TofVL53L3C::instance = nullptr;
 
 void IRAM_ATTR tof_int_wrapper() {
+    // USBSerial.printf("tof_int_wrapper is called");
+    USBSerial.printf("Instance address: %p\n", TofVL53L3C::instance);
+
     if (TofVL53L3C::instance) {
+        USBSerial.printf("inside of if tof_int_wrapper\n");
         TofVL53L3C::instance->tof_int();
     }
 }
 
+TofVL53L3C* TofVL53L3C::getInstance() {
+    if (instance == nullptr) {
+        instance = new TofVL53L3C();
+        USBSerial.printf("Instance created\n");
+    }
+    return instance;
+}
+
 void IRAM_ATTR TofVL53L3C::tof_int() {
+     USBSerial.printf("tof_int is called\n");
     ToF_bottom_data_ready_flag_ = 1;
 }
 
