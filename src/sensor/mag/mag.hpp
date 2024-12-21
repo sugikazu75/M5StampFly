@@ -12,6 +12,7 @@ public:
   void setOffsetVector(BLA::Matrix<3, 1> offset) {offset_ = offset;}
   void setScaliingMatrix(BLA::Matrix<3, 3> scaling_matrix) {scaling_matrix_ = scaling_matrix;}
   BLA::Matrix<3, 1> getMag() {return mag_data_;}
+  BLA::Matrix<3, 1> getRawMag() {return raw_mag_data_;}
   void update();
 
 protected:
