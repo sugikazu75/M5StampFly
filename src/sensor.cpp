@@ -76,7 +76,7 @@ uint8_t Range0flag                  = 0;
 volatile uint8_t Under_voltage_flag = 0;
 // volatile uint8_t ToF_bottom_data_ready_flag;
 // volatile uint16_t Range=1000;
-TofVL53L3C* tof = TofVL53L3C::getInstance();
+TofVL53L3C tof;
 
 uint8_t scan_i2c() {
     USBSerial.println("I2C scanner. Scanning ...");
@@ -134,7 +134,7 @@ void sensor_init() {
         USBSerial.printf("Can not boot AtomFly2.\r\n");
         while (1);
     }
-    tof->initialize();
+    tof.initialize();
     spi_init();
     imu_init();
     Drone_ahrs.begin(400.0);
@@ -144,11 +144,11 @@ void sensor_init() {
 
     uint16_t cnt = 0;
     while (cnt < 10) {
-        USBSerial.printf("tof_int_wrapper is called");
-        if (tof->ToF_bottom_data_ready_flag_) {
-            tof->ToF_bottom_data_ready_flag_ = 0;
+      USBSerial.printf("tof bottom, %d\n\r", cnt);
+        if (tof.ToF_bottom_data_ready_flag_) {
+            tof.ToF_bottom_data_ready_flag_ = 0;
             cnt++;
-            USBSerial.printf("tof bottom, %d %d\n\r", cnt, tof->get_bottom_range());
+            USBSerial.printf("tof bottom, %d %d\n\r", cnt, tof.get_bottom_range());
         }
     }
     delay(10);
@@ -274,17 +274,17 @@ float sensor_read(void) {
         Az = az_filter.update(-Accel_z_d, sens_interval);
 
         if (dcnt > interval) {
-            if (tof->ToF_bottom_data_ready_flag_) {
+            if (tof.ToF_bottom_data_ready_flag_) {
                 dcnt                       = 0u;
                 old_alt_time               = alt_time;
                 alt_time                   = micros() * 1.0e-6;
                 h                          = alt_time - old_alt_time;
-                tof->ToF_bottom_data_ready_flag_ = 0;
+                tof.ToF_bottom_data_ready_flag_ = 0;
 
                 // 距離の値の更新
                 // old_range[0] = dist;
-                RawRange = tof->get_bottom_range();
-                if (Mode == PARKING_MODE) RawRangeFront = tof->get_front_range();
+                RawRange = tof.get_bottom_range();
+                if (Mode == PARKING_MODE) RawRangeFront = tof.get_front_range();
                 // USBSerial.printf("%9.6f %d\n\r", Elapsed_time, RawRange);
                 if (RawRange > 20) {
                     Range = RawRange;

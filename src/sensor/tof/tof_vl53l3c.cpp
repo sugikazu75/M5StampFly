@@ -1,25 +1,34 @@
 #include <sensor/tof/tof_vl53l3c.hpp>
-TofVL53L3C* TofVL53L3C::instance = nullptr;
+// TofVL53L3C* TofVL53L3C::instance = nullptr;
+int16_t TofVL53L3C::ToF_bottom_data_ready_flag_ = 0;
 
-void IRAM_ATTR tof_int_wrapper() {
+void TofVL53L3C::tof_int_wrapper(void *parameter) {
     // USBSerial.printf("tof_int_wrapper is called");
-    USBSerial.printf("Instance address: %p\n", TofVL53L3C::instance);
+    // USBSerial.printf("Instance address: %p\n", TofVL53L3C::instance);
 
-    if (TofVL53L3C::instance) {
-        USBSerial.printf("inside of if tof_int_wrapper\n");
-        TofVL53L3C::instance->tof_int();
+    USBSerial.printf("inside of if tof_int_wrapper\n");
+    bool prev_INT_BOTTOM_state = false;
+    while(1){
+      bool current_INT_BOTTOM_state = digitalRead(INT_BOTTOM);
+      if (prev_INT_BOTTOM_state == true
+	  && current_INT_BOTTOM_state == false){
+	TofVL53L3C::tof_int();
+      }
+      prev_INT_BOTTOM_state = current_INT_BOTTOM_state;
+      vTaskDelay(10 / portTICK_PERIOD_MS);
     }
+
 }
 
-TofVL53L3C* TofVL53L3C::getInstance() {
-    if (instance == nullptr) {
-        instance = new TofVL53L3C();
-        USBSerial.printf("Instance created\n");
-    }
-    return instance;
-}
+// TofVL53L3C* TofVL53L3C::getInstance() {
+//     if (instance == nullptr) {
+//         instance = new TofVL53L3C();
+//         USBSerial.printf("Instance created\n");
+//     }
+//     return instance;
+// }
 
-void IRAM_ATTR TofVL53L3C::tof_int() {
+void TofVL53L3C::tof_int() {
      USBSerial.printf("tof_int is called\n");
     ToF_bottom_data_ready_flag_ = 1;
 }
@@ -92,7 +101,13 @@ void TofVL53L3C::initialize() {
     USBSerial.printf("#2 RdWord Status:%d\n\r", VL53LX_RdWord(ToF_front, 0x010F, &wordData));
     USBSerial.printf("#2 VL53LX: %04X\n\r", wordData);
 
-    attachInterrupt(INT_BOTTOM, tof_int_wrapper, FALLING);
+    xTaskCreatePinnedToCore(tof_int_wrapper,
+    			    "Task_tof_int_update",
+    			    1024*16,
+    			    NULL,
+    			    1,
+    			    NULL,
+    			    tskNO_AFFINITY);
 
     VL53LX_ClearInterruptAndStartMeasurement(ToF_bottom);
     delay(100);
