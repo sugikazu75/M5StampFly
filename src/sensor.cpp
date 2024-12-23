@@ -76,6 +76,9 @@ uint8_t Range0flag                  = 0;
 volatile uint8_t Under_voltage_flag = 0;
 // volatile uint8_t ToF_bottom_data_ready_flag;
 // volatile uint16_t Range=1000;
+int16_t TofVL53L3C::ToF_bottom_data_ready_flag_ = 0;
+SemaphoreHandle_t TofVL53L3C::mutex_ = nullptr;
+
 TofVL53L3C tof;
 
 uint8_t scan_i2c() {
@@ -145,10 +148,14 @@ void sensor_init() {
     uint16_t cnt = 0;
     while (cnt < 10) {
       USBSerial.printf("tof bottom, %d\n\r", cnt);
-        if (tof.ToF_bottom_data_ready_flag_) {
-            tof.ToF_bottom_data_ready_flag_ = 0;
+      USBSerial.printf("tof.ToF_bottom_data_ready_flag_: %d\n", tof.get_tof_bottom_data_ready_flag());
+      if (tof.get_tof_bottom_data_ready_flag()) {
+            USBSerial.printf("flag is true\n");
+            // tof.set_tof_bottom_data_ready_flag(0);
+            TofVL53L3C::set_tof_bottom_data_ready_flag(0);
             cnt++;
             USBSerial.printf("tof bottom, %d %d\n\r", cnt, tof.get_bottom_range());
+            delay(100);
         }
     }
     delay(10);
@@ -274,12 +281,12 @@ float sensor_read(void) {
         Az = az_filter.update(-Accel_z_d, sens_interval);
 
         if (dcnt > interval) {
-            if (tof.ToF_bottom_data_ready_flag_) {
+            if (tof.get_tof_bottom_data_ready_flag()) {
                 dcnt                       = 0u;
                 old_alt_time               = alt_time;
                 alt_time                   = micros() * 1.0e-6;
                 h                          = alt_time - old_alt_time;
-                tof.ToF_bottom_data_ready_flag_ = 0;
+                tof.set_tof_bottom_data_ready_flag(0);
 
                 // 距離の値の更新
                 // old_range[0] = dist;

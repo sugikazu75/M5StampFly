@@ -1,6 +1,5 @@
 #include <sensor/tof/tof_vl53l3c.hpp>
 // TofVL53L3C* TofVL53L3C::instance = nullptr;
-int16_t TofVL53L3C::ToF_bottom_data_ready_flag_ = 0;
 
 void TofVL53L3C::tof_int_wrapper(void *parameter) {
     // USBSerial.printf("tof_int_wrapper is called");
@@ -30,7 +29,8 @@ void TofVL53L3C::tof_int_wrapper(void *parameter) {
 
 void TofVL53L3C::tof_int() {
      USBSerial.printf("tof_int is called\n");
-    ToF_bottom_data_ready_flag_ = 1;
+     TofVL53L3C::set_tof_bottom_data_ready_flag(1);
+     // ToF_bottom_data_ready_flag_ = 1;
 }
 
 int16_t TofVL53L3C::get_front_range() {
@@ -101,9 +101,13 @@ void TofVL53L3C::initialize() {
     USBSerial.printf("#2 RdWord Status:%d\n\r", VL53LX_RdWord(ToF_front, 0x010F, &wordData));
     USBSerial.printf("#2 VL53LX: %04X\n\r", wordData);
 
+    mutex_ = xSemaphoreCreateMutex();
+    if (mutex_ == nullptr) {
+      USBSerial.print("Mutex creation failed!\n");
+    }
     xTaskCreatePinnedToCore(tof_int_wrapper,
     			    "Task_tof_int_update",
-    			    1024*16,
+    			    1024*4,
     			    NULL,
     			    1,
     			    NULL,
