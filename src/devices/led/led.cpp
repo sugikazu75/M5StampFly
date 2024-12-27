@@ -25,7 +25,7 @@
 
 #include "devices/led/led.hpp"
 #include "sensor.hpp"
-#include "rc.hpp"
+#include "communication/rc.hpp"
 #include "flight_control.hpp"
 
 uint32_t Led_color       = 0x000000;

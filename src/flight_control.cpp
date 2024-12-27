@@ -38,11 +38,11 @@
 // 2024-08-10 Acroモードで高度制御働かないバグを修正
 
 #include "flight_control.hpp"
-#include "rc.hpp"
+#include "communication/rc.hpp"
 #include "utils/pid/pid.hpp"
 #include "sensor.hpp"
 #include "devices/led/led.hpp"
-#include "telemetry.hpp"
+#include "communication/telemetry.hpp"
 #include "devices/button/button.hpp"
 #include "devices/buzzer/buzzer.h"
 

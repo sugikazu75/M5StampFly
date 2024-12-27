@@ -23,9 +23,9 @@
  * SOFTWARE.
  */
 
-#include "telemetry.hpp"
+#include "communication/telemetry.hpp"
 
-#include "rc.hpp"
+#include "communication/rc.hpp"
 #include "devices/led/led.hpp"
 #include "sensor.hpp"
 #include "flight_control.hpp"
