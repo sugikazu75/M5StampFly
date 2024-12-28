@@ -33,7 +33,7 @@
 #include <INA3221.h>
 #include <MadgwickAHRS.h>
 #include <stdint.h>
-#include "alt_kalman.hpp"
+#include "aerial_robot/state_estimation/altitude/alt_kalman.hpp"
 #include <driver/spi_master.h>
 #include "driver/gpio.h"
 #include "sdkconfig.h"
