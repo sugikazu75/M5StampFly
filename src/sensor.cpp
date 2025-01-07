@@ -25,7 +25,6 @@
 
 #include "sensor.hpp"
 #include "imu.hpp"
-#include "tof.hpp"
 #include "flight_control.hpp"
 
 Madgwick Drone_ahrs;
@@ -43,6 +42,7 @@ Filter raw_gx_filter;
 Filter raw_gy_filter;
 Filter raw_gz_filter;
 Filter alt_filter;
+
 
 // Sensor data
 volatile float Roll_angle = 0.0f, Pitch_angle = 0.0f, Yaw_angle = 0.0f;
@@ -76,6 +76,7 @@ uint8_t Range0flag                  = 0;
 volatile uint8_t Under_voltage_flag = 0;
 // volatile uint8_t ToF_bottom_data_ready_flag;
 // volatile uint16_t Range=1000;
+TofVL53L3C tof;
 
 uint8_t scan_i2c() {
     USBSerial.println("I2C scanner. Scanning ...");
@@ -127,16 +128,13 @@ void ahrs_reset(void) {
 }
 
 void sensor_init() {
-    // beep_init();
-
     Wire1.begin(SDA_PIN, SCL_PIN, 400000UL);
     if (scan_i2c() == 0) {
         USBSerial.printf("No I2C device!\r\n");
         USBSerial.printf("Can not boot AtomFly2.\r\n");
         while (1);
     }
-
-    tof_init();
+    tof.initialize();
     spi_init();
     imu_init();
     Drone_ahrs.begin(400.0);
@@ -146,10 +144,11 @@ void sensor_init() {
 
     uint16_t cnt = 0;
     while (cnt < 10) {
-        if (ToF_bottom_data_ready_flag) {
-            ToF_bottom_data_ready_flag = 0;
+      USBSerial.printf("tof bottom, %d\n\r", cnt);
+        if (tof.ToF_bottom_data_ready_flag_) {
+            tof.ToF_bottom_data_ready_flag_ = 0;
             cnt++;
-            USBSerial.printf("%d %d\n\r", cnt, tof_bottom_get_range());
+            USBSerial.printf("tof bottom, %d %d\n\r", cnt, tof.get_bottom_range());
         }
     }
     delay(10);
@@ -275,17 +274,17 @@ float sensor_read(void) {
         Az = az_filter.update(-Accel_z_d, sens_interval);
 
         if (dcnt > interval) {
-            if (ToF_bottom_data_ready_flag) {
+            if (tof.ToF_bottom_data_ready_flag_) {
                 dcnt                       = 0u;
                 old_alt_time               = alt_time;
                 alt_time                   = micros() * 1.0e-6;
                 h                          = alt_time - old_alt_time;
-                ToF_bottom_data_ready_flag = 0;
+                tof.ToF_bottom_data_ready_flag_ = 0;
 
                 // 距離の値の更新
                 // old_range[0] = dist;
-                RawRange = tof_bottom_get_range();
-                if (Mode == PARKING_MODE) RawRangeFront = tof_front_get_range();
+                RawRange = tof.get_bottom_range();
+                if (Mode == PARKING_MODE) RawRangeFront = tof.get_front_range();
                 // USBSerial.printf("%9.6f %d\n\r", Elapsed_time, RawRange);
                 if (RawRange > 20) {
                     Range = RawRange;
