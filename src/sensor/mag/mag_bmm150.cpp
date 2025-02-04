@@ -12,13 +12,14 @@ void MagnetmeterBMM150::initialize()
     }
   else
     USBSerial.printf("#BMM150 Initialize done!\n\r");
-  driver_->set_op_mode(BMM150_FORCED_MODE);
+  // driver_->set_op_mode(BMM150_FORCED_MODE);
+  driver_->set_op_mode(BMM150_NORMAL_MODE);
 }
 
 void MagnetmeterBMM150::readMagData()
 {
   bmm150_mag_data magvalue;
-  driver_->set_op_mode(BMM150_FORCED_MODE);
+  // driver_->set_op_mode(BMM150_FORCED_MODE);
   driver_->read_mag_data();
   raw_mag_data_(0) =  driver_->raw_mag_data.raw_datax;
   raw_mag_data_(1) =  driver_->raw_mag_data.raw_datay;

@@ -58,7 +58,7 @@ void telemetry(void) {
 
         // Send !
         telemetry_send(senddata, sizeof(senddata));
-    } else if (Mode > AVERAGE_MODE) {
+    } else if (Mode >= 0) {
         const uint8_t N = 10;
         // N回に一度送信
         if (Telem_cnt == 0) telemetry_sequence();

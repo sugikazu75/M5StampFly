@@ -1,9 +1,22 @@
 #pragma once
 
+namespace I2C
+{
+  constexpr int SDA_PIN = 3;
+  constexpr int SCL_PIN = 4;
+}
+
 namespace ROBOT_MODEL
 {
   constexpr float ROTOR_X = 0.03; // todo
   constexpr float ROTOR_Y = 0.03; // todo
+}
+
+namespace NAVIGATION
+{
+  constexpr float TAKEOFF_HEIGHT = 0.8;
+  constexpr float LANDING_HEIGHT = 0.05;
+  constexpr float ARM_OFF_THRESHOLD = 0.05;
 }
 
 namespace MOTOR
@@ -24,6 +37,10 @@ namespace MOTOR
   constexpr float rotor2_direction =  1;
   constexpr float rotor3_direction = -1;
   constexpr float rotor4_direction =  1;
+
+  constexpr float MIN_PWM_RATIO = 0.0;
+  constexpr float MIN_ROTATING_PWM_RATIO = 0.1; // todo
+  constexpr float MAX_PWM_RATIO = 0.95;
 }
 
 namespace CONTROL

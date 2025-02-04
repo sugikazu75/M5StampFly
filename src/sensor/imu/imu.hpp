@@ -5,7 +5,7 @@
 class Imu
 {
 public:
-  Imu() {};
+  Imu();
   ~Imu() = default;
 
   virtual void initialize() {};

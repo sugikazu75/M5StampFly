@@ -1,10 +1,11 @@
 #pragma once
 
 #include <BasicLinearAlgebra.h>
-#include <utils/pid/pid.hpp>
 #include <memory>
+#include <utils/pid/pid_controller.hpp>
 #include <aerial_robot/state_estimation/state_estimator.hpp>
 #include <aerial_robot/navigation/navigation_base.hpp>
+#include <config.h>
 
 class UnderActuatedFlightController
 {
@@ -20,8 +21,8 @@ private:
   std::shared_ptr<Odometry> odom_;
   std::shared_ptr<BaseNavigator> navigator_;
   BLA::Matrix<4, 1> control_input_;
-  PID z_pid_;
-  PID roll_pid_;
-  PID pitch_pid_;
-  PID yaw_pid_;
+  PIDController z_pid_;
+  PIDController roll_pid_;
+  PIDController pitch_pid_;
+  PIDController yaw_pid_;
 };

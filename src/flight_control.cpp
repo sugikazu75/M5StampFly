@@ -283,7 +283,7 @@ void init_copter(void) {
 
     USBSerial.printf("Finish StampFly init!\r\n");
     USBSerial.printf("Enjoy Flight!\r\n");
-    start_tone();
+    // start_tone();
 }
 
 // Main loop
@@ -326,6 +326,8 @@ void loop_400Hz(void) {
         if (OffsetCounter < AVERAGENUM) {
             sensor_calc_offset_avarage();
             OffsetCounter++;
+            if(OffsetCounter == AVERAGENUM)
+              print_gyro_offset();
             return;
         }
         // Mode change

@@ -2,6 +2,8 @@
 
 QuadrotorHardware::QuadrotorHardware(std::vector<std::shared_ptr<Motor>> motors)
 {
+  motors_.resize(motors.size());
+
   for(int i = 0; i < motors.size();i ++)
     {
       motors_.at(i) = motors.at(i);

@@ -98,6 +98,7 @@ void sensor_init(void);
 float sensor_read(void);
 void sensor_reset_offset(void);
 void sensor_calc_offset_avarage(void);
+void print_gyro_offset(void);
 void ahrs_reset(void);
 uint8_t scan_i2c(void);
 

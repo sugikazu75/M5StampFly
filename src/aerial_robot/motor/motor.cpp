@@ -17,9 +17,10 @@ Motor::Motor(int motor_pin, int motor_channel,
 
 void Motor::initialize()
 {
+  USBSerial.printf("initialize Motor %d connected to %d pin\n", motor_channel_, motor_pin_);
   ledcSetup(motor_channel_, motor_freq_, motor_resolution_);
   ledcAttachPin(motor_pin_, motor_channel_);
-  USBSerial.printf("Motor %d init done", motor_channel_);
+  USBSerial.printf("Motor %d init done\n", motor_channel_);
 }
 
 void Motor::setPwm(float duty)

@@ -4,7 +4,6 @@
 #include <sensor/mag/mag.hpp>
 #include <memory>
 #include <BasicLinearAlgebra.h>
-#include <MadgwickAHRS.h>
 #include <aerial_robot/state_estimation/attitude/complementary_ahrs.hpp>
 
 #define DELTA_T 0.01f
@@ -22,11 +21,14 @@ public:
 
   std::shared_ptr<Imu> imu_;
   std::shared_ptr<Magnetmeter> magnetmeter_;
-  Madgwick madgwick_filter_;
   ComplementaryAHRS complementary_filter_;
 
   float imu_last_update_time_;
   float mag_last_update_time_;
+
+  BLA::Matrix<3, 1> getAcc() {return complementary_filter_.getAcc();}
+  BLA::Matrix<3, 1> getGyro() {return complementary_filter_.getGyro();}
+  BLA::Matrix<3, 1> getRpy() {return complementary_filter_.getRpy();}
 
 private:
   float invSqrt(float x);

@@ -15,7 +15,12 @@ Odometry::Odometry(std::shared_ptr<AttitudeEstimator> attitude_estimator,
 
 void Odometry::update()
 {
+  // attitude
   attitude_estimator_->update();
+  acc_ = attitude_estimator_->getAcc();
+  rpy_ = attitude_estimator_->getRpy();
+  omega_ = attitude_estimator_->getGyro();
+
   altitude_estimator_->update();
 }
 
