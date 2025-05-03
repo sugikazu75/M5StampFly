@@ -365,15 +365,15 @@ float sensor_read(void) {
             EstimatedAltitude.update(Altitude, Az, Interval_time);
         else
             first_flag = 1;
-        Altitude2 = EstimatedAltitude.Altitude;
+        Altitude2 = EstimatedAltitude.altitude_;
         // MAX_ALTを超えたら高度下げる（自動着陸）
         if ((Altitude2 > ALT_LIMIT && Alt_flag >= 1 && Flip_flag == 0) || RawRange == 0)
             Range0flag++;
         else
             Range0flag = 0;
         if (Range0flag > RNAGE0FLAG_MAX) Range0flag = RNAGE0FLAG_MAX;
-        Alt_velocity = EstimatedAltitude.Velocity;
-        Az_bias      = EstimatedAltitude.Bias;
+        Alt_velocity = EstimatedAltitude.velocity_;
+        Az_bias      = EstimatedAltitude.bias_;
         // USBSerial.printf("Sens=%f Az=%f Altitude=%f Velocity=%f Bias=%f\n\r",Altitude, Az, Altitude2, Alt_velocity,
         // Az_bias);
     }

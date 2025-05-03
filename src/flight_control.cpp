@@ -159,7 +159,7 @@ volatile float Elevator_center = 0.0f, Aileron_center = 0.0f, Rudder_center = 0.
 
 // Machine state & flag
 float Timevalue          = 0.0f;
-volatile uint8_t Mode    = INIT_MODE;
+volatile uint8_t Mode    = FLIGHT_MODE;
 volatile uint8_t OldMode = INIT_MODE;
 uint8_t Control_mode     = ANGLECONTROL;
 // volatile uint8_t LockMode=0;
@@ -267,7 +267,7 @@ void init_copter(void) {
     control_init();
 
     // Initilize Radio control
-    rc_init();
+    RemoteControl::rc_init();
 
     // 割り込み設定
     // Initialize intrupt
@@ -283,7 +283,7 @@ void init_copter(void) {
 
     USBSerial.printf("Finish StampFly init!\r\n");
     USBSerial.printf("Enjoy Flight!\r\n");
-    // start_tone();
+    start_tone();
 }
 
 // Main loop
@@ -339,7 +339,7 @@ void loop_400Hz(void) {
 
         // Judge Mode change
         if (judge_mode_change() == 1) Mode = AUTO_LANDING_MODE;
-        if (rc_isconnected() == 0) Mode = AUTO_LANDING_MODE;
+        if (RemoteControl::rc_isconnected() == 0) Mode = AUTO_LANDING_MODE;
         // if (Range0flag == 20) Mode = AUTO_LANDING_MODE;
         if (OverG_flag == 1) Mode = PARKING_MODE;
         if (Mode != OldMode) ahrs_reset();
@@ -405,7 +405,7 @@ void loop_400Hz(void) {
 
     //// Telemetry
     // telemetry_fast();
-    telemetry();
+    Telemetry::telemetry();
 
     uint32_t ce_time = micros();
     Dt_time          = ce_time - cs_time;
@@ -423,7 +423,7 @@ void flip(void) {
 
     // Judge Mode change
     if (judge_mode_change() == 1) Mode = AUTO_LANDING_MODE;
-    if (rc_isconnected() == 0) Mode = AUTO_LANDING_MODE;
+    if (RemoteControl::rc_isconnected() == 0) Mode = AUTO_LANDING_MODE;
     if (OverG_flag == 1) Mode = PARKING_MODE;
 
     // Flip parameter set
