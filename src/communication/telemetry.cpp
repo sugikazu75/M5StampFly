@@ -35,11 +35,15 @@ uint8_t Telem_cnt      = 0;
 const uint8_t MAXINDEX = 120;
 const uint8_t MININDEX = 30;
 
+namespace Telemetry{
+float telemetry_roll_ = 0.0;
+float telemetry_pitch_ = 0.0;
+float telemetry_yaw_ = 0.0;
+float battery_voltage_ = 0.0;
+float altitude_       = 0.0;
+
 void telemetry_sequence(void);
-void telemetry_sequence_fast(void);
-void make_telemetry_header_data(uint8_t* senddata);
 void make_telemetry_data(uint8_t* senddata);
-void make_telemetry_data_fast(uint8_t* senddata);
 void data2log(uint8_t* data_list, float add_data, uint8_t index);
 void float2byte(float x, uint8_t* dst);
 void append_data(uint8_t* data, uint8_t* newdata, uint8_t index, uint8_t len);
@@ -50,75 +54,42 @@ void data_set_uint8(uint8_t* datalist, uint8_t value, uint8_t* index);
 
 void telemetry(void) {
     uint8_t senddata[MAXINDEX];
+    Telem_cnt++;
 
-    if (Telem_mode == 0) {
-        // Send header data
-        Telem_mode = 1;
-        make_telemetry_header_data(senddata);
-
-        // Send !
-        telemetry_send(senddata, sizeof(senddata));
-    } else if (Mode >= 0) {
-        const uint8_t N = 10;
-        // N回に一度送信
-        if (Telem_cnt == 0) telemetry_sequence();
-        Telem_cnt++;
-        if (Telem_cnt > N - 1) Telem_cnt = 0;
-        // telemetry_sequence();
+    const uint8_t N = 10;
+    if (Telem_cnt == N){
+        telemetry_sequence();
+        Telem_cnt = 0;
     }
 }
 
 void telemetry_sequence(void) {
     uint8_t senddata[MAXINDEX];
 
-    switch (Telem_mode) {
-        case 1:
-            make_telemetry_data(senddata);
-            // Send !
-            if (telemetry_send(senddata, sizeof(senddata)) == 1)
-                esp_led(0x110000, 1);  // Telemetory Reciver OFF
-            else
-                esp_led(0x001100, 1);  // Telemetory Reciver ON
+    make_telemetry_data(senddata);
 
-            // Telem_mode = 2;
-            break;
-    }
+    if (RemoteControl::telemetry_send(senddata, sizeof(senddata)) == 1)
+      esp_led(0x110000, 1);  // Telemetory Reciver OFF
+    else
+      esp_led(0x001100, 1);  // Telemetory Reciver ON
+
 }
 
-void make_telemetry_header_data(uint8_t* senddata) {
-    float d_float;
-    uint8_t d_int[4];
-    uint8_t index = 0;
+void setRpy(float roll, float pitch, float yaw)
+{
+    telemetry_roll_ = roll;
+    telemetry_pitch_ = pitch;
+    telemetry_yaw_ = yaw;
+}
 
-    index = 2;
-    for (uint8_t i = 0; i < (MAXINDEX - 2) / 4; i++) {
-        data2log(senddata, 0.0f, index);
-        index = index + 4;
-    }
-    // Telemetry Header
-    senddata[0] = 99;
-    senddata[1] = 99;
-    index       = 2;
-    data_set(senddata, Roll_rate_kp, &index);
-    data_set(senddata, Roll_rate_ti, &index);
-    data_set(senddata, Roll_rate_td, &index);
-    data_set(senddata, Roll_rate_eta, &index);
-    data_set(senddata, Pitch_rate_kp, &index);
-    data_set(senddata, Pitch_rate_ti, &index);
-    data_set(senddata, Pitch_rate_td, &index);
-    data_set(senddata, Pitch_rate_eta, &index);
-    data_set(senddata, Yaw_rate_kp, &index);
-    data_set(senddata, Yaw_rate_ti, &index);
-    data_set(senddata, Yaw_rate_td, &index);
-    data_set(senddata, Yaw_rate_eta, &index);
-    data_set(senddata, Rall_angle_kp, &index);
-    data_set(senddata, Rall_angle_ti, &index);
-    data_set(senddata, Rall_angle_td, &index);
-    data_set(senddata, Rall_angle_eta, &index);
-    data_set(senddata, Pitch_angle_kp, &index);
-    data_set(senddata, Pitch_angle_ti, &index);
-    data_set(senddata, Pitch_angle_td, &index);
-    data_set(senddata, Pitch_angle_eta, &index);
+void setBatteryVoltage(float voltage)
+{
+    battery_voltage_ = voltage;
+}
+
+void setAltitude(float altitude)
+{
+    altitude_ = altitude;
 }
 
 void make_telemetry_data(uint8_t* senddata) {
@@ -132,9 +103,9 @@ void make_telemetry_data(uint8_t* senddata) {
     index       = 2;
     data_set(senddata, Elapsed_time, &index);                                   // 1 Time
     data_set(senddata, Interval_time, &index);                                  // 2 delta Time
-    data_set(senddata, (Roll_angle - Roll_angle_offset) * 180 / PI, &index);    // 3 Roll_angle
-    data_set(senddata, (Pitch_angle - Pitch_angle_offset) * 180 / PI, &index);  // 4 Pitch_angle
-    data_set(senddata, (Yaw_angle - Yaw_angle_offset) * 180 / PI, &index);      // 5 Yaw_angle
+    data_set(senddata, telemetry_roll_, &index);    // 3 Roll_angle
+    data_set(senddata, telemetry_pitch_, &index);  // 4 Pitch_angle
+    data_set(senddata, telemetry_yaw_, &index);      // 5 Yaw_angle
     data_set(senddata, (Roll_rate) * 180 / PI, &index);                         // 6 P
     data_set(senddata, (Pitch_rate) * 180 / PI, &index);                        // 7 Q
     data_set(senddata, (Yaw_rate) * 180 / PI, &index);                          // 8 R
@@ -146,7 +117,7 @@ void make_telemetry_data(uint8_t* senddata) {
     data_set(senddata, Pitch_rate_reference * 180 / PI, &index);   // 12 Q ref
     data_set(senddata, Yaw_rate_reference * 180 / PI, &index);     // 13 R ref
     data_set(senddata, Thrust_command / BATTERY_VOLTAGE, &index);  // 14 T ref
-    data_set(senddata, Voltage, &index);                           // 15 Voltage
+    data_set(senddata, battery_voltage_, &index);                           // 15 Voltage
     data_set(senddata, Accel_x_raw, &index);                       // 16 Accel_x_raw
     data_set(senddata, Accel_y_raw, &index);                       // 17 Accel_y_raw
     data_set(senddata, Accel_z_raw, &index);                       // 18 Accel_z_raw
@@ -158,67 +129,12 @@ void make_telemetry_data(uint8_t* senddata) {
     // data_set(senddata, RearLeft_motor_duty, index);
     data_set(senddata, Alt_ref, &index);            // 23 Alt_ref
     data_set(senddata, Altitude2, &index);          // 24 Altitude2
-    data_set(senddata, Altitude, &index);           // 25 Sense_Alt
+    data_set(senddata, altitude_, &index);           // 25 Sense_Alt
     data_set(senddata, Az, &index);                 // 26 Az
     data_set(senddata, Az_bias, &index);            // 27 Az_bias
     data_set_uint8(senddata, Alt_flag, &index);     // 28.1 Alt_flag(1 byte)
     data_set_uint8(senddata, Mode, &index);         // 28.2 fly mode(1 byte)
     data_set_uint16(senddata, RangeFront, &index);  // 28.3-4 tof front
-}
-
-void telemetry_fast(void) {
-    uint8_t senddata[MAXINDEX];
-
-    if (Telem_mode == 0) {
-        // Send header data
-        Telem_mode = 1;
-        make_telemetry_header_data(senddata);
-
-        // Send !
-        telemetry_send(senddata, sizeof(senddata));
-    }
-    // else if(Mode > AVERAGE_MODE)
-    //{
-    //   telemetry_sequence400();
-    // }
-    else if (Mode > AVERAGE_MODE) {
-        const uint8_t N = 8;
-        // N回に一度送信
-        if (Telem_cnt == 0) telemetry_sequence_fast();
-        Telem_cnt++;
-        if (Telem_cnt > N - 1) Telem_cnt = 0;
-        // telemetry_sequence();
-    }
-}
-
-void telemetry_sequence_fast(void) {
-    uint8_t senddata[MAXINDEX];
-
-    make_telemetry_data_fast(senddata);
-    // Send !
-    if (telemetry_send(senddata, MININDEX) == 1)
-        esp_led(0x110000, 1);  // Telemetory Reciver OFF
-    else
-        esp_led(0x001100, 1);  // Telemetory Reciver ON
-}
-
-void make_telemetry_data_fast(uint8_t* senddata) {
-    float d_float;
-    uint8_t d_int[4];
-    uint8_t index = 0;
-
-    // Telemetry Header
-    senddata[0] = 88;
-    senddata[1] = 88;
-    index       = 2;
-
-    data_set(senddata, Elapsed_time, &index);  // 1 Time
-    data_set(senddata, Mode, &index);          // 3 Accel_z
-    data_set(senddata, Alt_flag, &index);      // 2 Accel_z_raw
-    data_set(senddata, RawRange / 1000.0, &index);
-    data_set(senddata, Altitude, &index);
-    data_set(senddata, Altitude2, &index);
-    data_set(senddata, Alt_ref, &index);
 }
 
 void data_set(uint8_t* datalist, float value, uint8_t* index) {
@@ -262,3 +178,5 @@ void append_data(uint8_t* data, uint8_t* newdata, uint8_t index, uint8_t len) {
         data[i] = newdata[i - index];
     }
 }
+
+} // namespace Telemetry

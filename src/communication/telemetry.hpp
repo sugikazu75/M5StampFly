@@ -28,7 +28,16 @@
 
 #include <stdint.h>
 
-void telemetry(void);
-void telemetry_fast(void);
+namespace Telemetry {
+    extern float telemetry_roll_, telemetry_pitch_, telemetry_yaw_;
+    extern float battery_voltage_;
+    extern float altitude_;
+
+    void telemetry(void);
+
+    void setRpy(float roll, float pitch, float yaw);
+    void setBatteryVoltage(float voltage);
+    void setAltitude(float altitude);
+}
 
 #endif
