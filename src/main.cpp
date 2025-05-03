@@ -30,16 +30,18 @@
 
 #include <config.h>
 
-
 #include <communication/telemetry.hpp>
 #include <i2c.hpp>
 #include <spi_s3.hpp>
 
+#include <devices/button/button.hpp>
+#include <devices/buzzer/buzzer.h>
+#include <devices/led/led.hpp>
 #include <INA3221.h>
-#include <opt.hpp>
+#include <tof.hpp>
 #include <sensor/imu/imu_bmi270.hpp>
 #include <sensor/mag/mag_bmm150.hpp>
-
+#include <sensor/optical_flow/optical_flow_pmw3901.hpp>
 #include <aerial_robot/motor/motor.hpp>
 #include <aerial_robot/hardware/quadrotor_hardware.hpp>
 #include <aerial_robot/flight_control/underactuated_flight_control.hpp>
@@ -55,9 +57,10 @@
 // #define SDA_PIN      (3)
 // #define SCL_PIN      (4)
 
-// std::shared_ptr<INA3221> battery_voltage;
 std::shared_ptr<Magnetmeter> mag;
 std::shared_ptr<Imu> imu;
+std::shared_ptr<OpticalFlow> optical_flow;
+std::shared_ptr<INA3221> battery_voltage;
 std::shared_ptr<Odometry> odom;
 std::shared_ptr<AttitudeEstimator> attitude_estimator;
 std::shared_ptr<AltitudeEstimator> altitude_estimator;
@@ -79,6 +82,8 @@ void setup() {
   delay(1000);
   USBSerial.printf("serial begin!\r\n");
 
+  setup_pwm_buzzer();
+
   // init spi bus
   USBSerial.printf("SPI Initilize status:%d\n\r", spi_init());
 
@@ -87,8 +92,8 @@ void setup() {
   imu->initialize();
 
   // init optical flow
-  powerUp(&optconfig);
-  initRegisters();
+  optical_flow = std::make_shared<OpticalFlowPMW3901>();
+  optical_flow->initialize();
 
   // i2c
   Wire1.begin(I2C::SDA_PIN, I2C::SCL_PIN, 400000UL);
@@ -96,17 +101,20 @@ void setup() {
   i2c_scan();
 
   // battery
-  // battery_voltage = std::make_shared<INA3221>(INA3221_ADDR40_GND);
-  // battery_voltage->begin(&Wire1);
-  // battery_voltage->reset();
+  battery_voltage = std::make_shared<INA3221>(INA3221_ADDR40_GND);
+  battery_voltage->begin(&Wire1);
+  battery_voltage->reset();
 
   // magnetmeter (bmm150)
   mag = std::make_shared<MagnetmeterBMM150>();
   mag->initialize();
 
+  // tof sensor
+  tof_init();
+
   attitude_estimator = std::make_shared<AttitudeEstimator>(imu, mag);
   altitude_estimator = std::make_shared<AltitudeEstimator>(imu);
-  // altitude_estimator->initialize();
+  altitude_estimator->initialize();
 
   odom = std::make_shared<Odometry>(attitude_estimator,
                                     altitude_estimator);
@@ -143,6 +151,19 @@ void setup() {
 
   hardware = std::make_shared<QuadrotorHardware>(motors);
 
+  RemoteControl::rc_init();
+
+  led_init();
+  esp_led(0x110000, 1);
+  onboard_led1(WHITE, 1);
+  onboard_led2(WHITE, 1);
+  led_show();
+  led_show();
+  led_show();
+
+  start_tone();
+  init_button();
+
   delay(100);
   /* end debug*/
 #endif
@@ -159,16 +180,11 @@ void loop() {
 #if 1
   /* begin debug */
   // optical flow (PMW3901)
-  // int16_t flow_deltaX, flow_deltaY;
-  // readMotionCount(&flow_deltaX, &flow_deltaY);
-  // USBSerial.print("X: ");
-  // USBSerial.print(flow_deltaX);
-  // USBSerial.print(", Y: ");
-  // USBSerial.print(flow_deltaY);
-  // USBSerial.print("\n");
+  optical_flow->update();
 
-  // attitude_estimator->update();
-  // altitude_estimator->update();
+  attitude_estimator->update();
+  altitude_estimator->update();
+  // altitude_estimator->initialize();
 
   navigator->update();
   // flight_control->update();
@@ -222,8 +238,19 @@ void loop() {
   // USBSerial.print(" ");
   // USBSerial.print(P);
   // USBSerial.println();
-  telemetry();
 
+  // send robot data to controller
+  {
+    BLA::Matrix<3,1> rpy= attitude_estimator->getRpy();
+    float voltage = battery_voltage->getVoltage(INA3221_CH2);
+
+    Telemetry::setRpy(rpy(0), rpy(1), rpy(2));
+    Telemetry::setBatteryVoltage(voltage);
+    Telemetry::setAltitude(altitude_estimator->getAltitude());
+    Telemetry::telemetry();
+  }
+
+  led_show();
 
   delay(10);
   /* end debug */
