@@ -1,7 +1,24 @@
-#include "opt.hpp"
+#include "sensor/optical_flow/optical_flow_pmw3901.hpp"
+
+void OpticalFlowPMW3901::initialize()
+{
+    PMW3901::powerUp(&PMW3901::optconfig);
+    PMW3901::initRegisters();
+    USBSerial.printf("optical flow init done!\n");
+}
+
+void OpticalFlowPMW3901::update()
+{
+  int16_t tmp_x, tmp_y;
+  PMW3901::readMotionCount(&tmp_x, &tmp_y);
+
+  flow_delta_x_ = -tmp_y;
+  flow_delta_y_ = -tmp_x;
+}
+
+namespace PMW3901{
 
 optconfig_t optconfig;
-
 
 // SPI Write
 void registerWrite(uint8_t reg, uint8_t value) {
@@ -247,3 +264,5 @@ void readImage(uint8_t *image)
     status = buf>>6; //rightshift 6 bits so only top two stay 
   } while(status == 0x03); //while bits aren't set denoting ready state
 }
+
+} // namespace PMW3901

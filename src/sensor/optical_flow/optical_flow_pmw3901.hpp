@@ -1,15 +1,11 @@
-#ifndef OPT_HPP
-#define OPT_HPP
-
-/*! CPP guard */
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
+#pragma once
 
 #include <Arduino.h>
 #include <stdint.h>
-#include "spi_s3.hpp"
+#include <spi_s3.hpp>
+#include <sensor/optical_flow/optical_flow.hpp>
 
+namespace PMW3901{
 typedef struct {
     uint8_t chipid;
     uint8_t dipihc;
@@ -22,9 +18,15 @@ void initRegisters(void);
 void readMotionCount(int16_t *deltaX, int16_t *deltaY);
 void enableFrameCaptureMode(void);
 void readImage(uint8_t *image);
+}// namespace PMW3901
 
 
-//#ifdef __cplusplus
-//}
-//#endif /* End of CPP guard */
-#endif
+class OpticalFlowPMW3901 : public OpticalFlow
+{
+public:
+  OpticalFlowPMW3901(){};
+  ~OpticalFlowPMW3901() = default;
+
+  void initialize() override;
+  void update() override;
+};
