@@ -2,7 +2,6 @@
 
 void UnderActuatedNavigator::initialize()
 {
-  rc_init();
 }
 
 void UnderActuatedNavigator::update()

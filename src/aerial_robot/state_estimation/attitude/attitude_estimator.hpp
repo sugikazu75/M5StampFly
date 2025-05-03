@@ -11,6 +11,7 @@
 #define IMU_UPDATE_DU (1.0f / IMU_UPDATE_HZ)
 #define MAG_UPDATE_HZ 30.0f
 #define MAG_UPDATE_DU (1.0f / MAG_UPDATE_HZ)
+
 class AttitudeEstimator
 {
 public:

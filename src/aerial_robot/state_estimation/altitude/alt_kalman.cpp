@@ -93,9 +93,9 @@ void Alt_kalman::update(float z_sens, float accel, float h)
   estimate_state_ = predict_state_ + K * e;
 
   // Estimated state output
-  Velocity = estimate_state_(0);
-  Altitude = estimate_state_(1);
-  Bias = estimate_state_(2);
+  velocity_ = estimate_state_(0);
+  altitude_ = estimate_state_(1);
+  bias_ = estimate_state_(2);
 
   // estimate P
   correction_P_ = (BLA::Eye<3, 3>() - K * H_) * predict_P_;
@@ -112,5 +112,7 @@ void Alt_kalman::reset(void)
                    0.0, 100.0, 0.0,
                    0.0, 0.0, 100.0};
 
-  Velocity = 0.0, Altitude = 0.0, Bias = 0.0;
+  velocity_ = 0.0;
+  altitude_ = 0.0;
+  bias_ = 0.0;
 }

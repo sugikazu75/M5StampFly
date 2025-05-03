@@ -4,7 +4,7 @@
 #include <aerial_robot/state_estimation/altitude/alt_kalman.hpp>
 #include <memory>
 #include <utils/lpf/lpf.hpp>
-#include "tof.hpp"
+#include <tof.hpp>
 
 class AltitudeEstimator
 {
@@ -16,11 +16,15 @@ public:
 
   void initialize();
   void update();
+  float getAltitude() {return altitude_kalman_filter_.getAltitude();}
 
 private:
   std::shared_ptr<Imu> imu_;
   Alt_kalman altitude_kalman_filter_;
-  uint8_t ToF_bottom_data_ready_flag_ = 0;
+
+
+  int16_t range_ = 0;
+  int16_t range_prev_ = 0;
 
   Filter raw_az_filter_;
   Filter raw_az_d_filter_;

@@ -45,30 +45,33 @@ class Alt_kalman {
 
   float gravity_ = 9.80665;
 
-  // Sensor
-  // float z_sens;
 
   // Bias beta
   float beta = -0.01;
 
   // Q
-  float q1 = 0.1 * 0.1, q2 = (1.0) * (1.0);  // q1=1.0*1.0 q2=1.0*1.0
+  float q1 = 0.1 * 0.1;
+  float q2 = 1.0 * 1.0;
 
   // R
-  // float R = 0.004*0.004;
   float R = 0.004 * 0.004;
 
 public:
-  // step
-  float step = 1.0 / 400.0;
+  float step = 1.0 / 100.0;
+
   // state
-  float Velocity = 0.0, Altitude = 0.0, Bias = 0.0;
+  float velocity_  = 0.0;
+  float altitude_ = 0.0;
+  float bias_ = 0.0;
 
   // Method
   Alt_kalman();
   void initialize();
   void update(float z_sens, float accel, float h);
   void reset(void);
+  float getAltitude() { return altitude_; }
+  float getVelocity() { return velocity_; }
+
 };
 
 #endif

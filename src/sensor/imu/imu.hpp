@@ -11,6 +11,10 @@ public:
   virtual void initialize() {};
   void update();
   BLA::Matrix<3, 1> getAcc() {return acc_data_;}
+  float getAccX() {return acc_data_(0);}
+  float getAccY() {return acc_data_(1);}
+  float getAccZ() {return acc_data_(2);}
+
   BLA::Matrix<3, 1> getGyro() {return gyro_data_;}
 
 protected:
