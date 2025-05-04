@@ -24,9 +24,6 @@
  */
 
 #include "aerial_robot/state_estimation/altitude/alt_kalman.hpp"
-// #include <stdio.h>
-// #include <math.h>
-// #include <stdlib.h>
 #include <Arduino.h>
 
 Alt_kalman::Alt_kalman() {};
@@ -35,61 +32,53 @@ void Alt_kalman::initialize()
 {
   estimate_state_ = BLA::Zeros<3, 1>();
   predict_state_ = BLA::Zeros<3, 1>();
-  state_transition_model_ = {1.0, 0.0, -gravity_ * step,
-                             step, 1.0, 0.0,
-                             0.0, 0.0, 1 + beta * step};
-  state_transition_model_transpose_ = {1.0, step, 0.0,
-                                       0.0, 1.0, 0.0,
-                                       -gravity_ * step, 0.0, 1.0 + beta * step};
-  // predict_P_ = {100.0, 0.0, 0.0,
-  //               0.0, 100.0, 0.0,
-  //               0.0, 0.0, 100.0};
-  predict_P_ = (float)100.0 * BLA::Eye<3, 3>();
 
-   // correction_P_ = {100.0, 0.0, 0.0,
-   //                  0.0, 100.0, 0.0,
-   //                  0.0, 0.0, 100.0};
+  state_transition_model_ = {1.0, 0.0, -step_,
+                             step_, 1.0, 0.0,
+                             0.0, 0.0, 1 + beta * step_};
+
+  state_transition_model_transpose_ = {1.0, step_, 0.0,
+                                       0.0, 1.0, 0.0,
+                                       -step_, 0.0, 1 + beta * step_};
+
+  predict_P_ = (float)100.0 * BLA::Eye<3, 3>();
   correction_P_ = (float)100.0 * BLA::Eye<3, 3>();
 
-  Q_ = {q1, 0.0, 0.0,
-        0.0, 0.0, 0.0,
-        0.0, 0.0, q2};
+  Q_ = {0.01, 0.0,
+        0.0,  1.0};
 
-  R_ = {0.0, 0.0, 0.0,
-        0.0, R, 0.0,
-        0.0, 0.0, 0.0};
+  G_ = {step_, 0.0,
+        0.0, 0.0,
+        0.0, step_};
 
-  H_ = {0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 0.0};
+  G_transpose_ = {step_, 0.0, 0.0,
+                  0.0, 0.0, step_};
 
-  G_ = {step, 0.0, 0.0,
-        0.0, 0.0, 0.0,
-        0.0, 0.0, step};
+  R_ = {R};
+
+  H_ = {0.0, 1.0, 0.0};
+  H_transpose_ = {0.0,
+                  1.0,
+                  0.0};
+
 }
 
-void Alt_kalman::update(float z_sens, float accel, float h)
+void Alt_kalman::update(float z_sens, float accel)
 {
-  step = h;
+  loop_count_++;
 
   // predict state
-  control_input_model_ = {gravity_ * accel * step, 0.0, 0.0};
+  control_input_model_ = {accel * step_, 0.0, 0.0};
   predict_state_ = state_transition_model_ * estimate_state_ + control_input_model_;
 
   // predict P
-  predict_P_ = state_transition_model_ * correction_P_ * state_transition_model_transpose_ + G_ * Q_ * G_; // G_transpose is same as G
+  predict_P_ = state_transition_model_ * correction_P_ * state_transition_model_transpose_ + G_ * Q_ * G_transpose_;
 
-  // update kalman gain
-  // BLA::Matrix<3, 3> S = R + H_ * predict_P_ * H_; // H_transpose is same as H
-  // BLA::Matrix<3, 3> K = predict_P_ * H_ * Inverse(S); // H_transpose is same as H
-  float s = predict_P_(1, 1) + R_(1, 1);
-  BLA::Matrix<3, 3> K = {0.0, predict_P_(0, 1) / s, 0.0,
-                         0.0, predict_P_(1, 1) / s, 0.0,
-                         0.0, predict_P_(2, 1) / s, 0.0};
+  BLA::Matrix<1, 1> observation = {z_sens};
+  BLA::Matrix<1, 1> e = observation - H_ * predict_state_;
 
-  // inovation
-  BLA::Matrix<3, 1> observation = {0.0, z_sens, 0.0};
-  BLA::Matrix<3, 1> e = observation - H_ * predict_state_;
+  BLA::Matrix<1, 1> S = R + H_ * predict_P_ * H_transpose_;
+  BLA::Matrix<3, 1> K = predict_P_ * H_transpose_ * Inverse(S);
 
   // estimate state
   estimate_state_ = predict_state_ + K * e;
@@ -101,6 +90,14 @@ void Alt_kalman::update(float z_sens, float accel, float h)
 
   // estimate P
   correction_P_ = (BLA::Eye<3, 3>() - K * H_) * predict_P_;
+
+  // if(loop_count_ % 10 == 0)
+  //   {
+  //     loop_count_ = 0;
+  //     USBSerial.printf("tof, acc_z: %f %f\n", z_sens, accel);
+  //     USBSerial.printf("estimate_state_: %f %f %f\n", estimate_state_(0), estimate_state_(1), estimate_state_(2));
+  //   }
+
 }
 
 void Alt_kalman::reset(void)

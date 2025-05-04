@@ -22,11 +22,11 @@ private:
   std::shared_ptr<Imu> imu_;
   Alt_kalman altitude_kalman_filter_;
 
-
-  int16_t range_ = 0;
-  int16_t range_prev_ = 0;
+  float gravity_ = 9.80665;
 
   Filter raw_az_filter_;
-  Filter raw_az_d_filter_;
-  Filter az_filter_;
+
+  int16_t min_tof_ = 40;
+  int16_t last_input_tof_ = 0;
+  int16_t tof_diff_torelance_ = 500;
 };

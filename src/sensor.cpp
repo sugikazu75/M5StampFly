@@ -362,7 +362,7 @@ float sensor_read(void) {
 
         Altitude = alt_filter.update((float)Range / 1000.0, Interval_time);
         if (first_flag == 1)
-            EstimatedAltitude.update(Altitude, Az, Interval_time);
+            EstimatedAltitude.update(Altitude, Az);
         else
             first_flag = 1;
         Altitude2 = EstimatedAltitude.altitude_;

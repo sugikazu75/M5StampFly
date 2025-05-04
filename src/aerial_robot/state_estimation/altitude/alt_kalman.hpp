@@ -30,7 +30,20 @@
 #include <ElementStorage.h>
 
 class Alt_kalman {
-  // state
+public:
+  // Method
+  Alt_kalman();
+  void initialize();
+  void update(float z_sens, float accel);
+  void reset(void);
+  float getAltitude() { return altitude_; }
+  float getVelocity() { return velocity_; }
+
+  float velocity_  = 0.0;
+  float altitude_ = 0.0;
+  float bias_ = 0.0;
+
+private:
   BLA::Matrix<3, 1> estimate_state_;
   BLA::Matrix<3, 1> predict_state_;
   BLA::Matrix<3, 1> control_input_model_;
@@ -38,40 +51,21 @@ class Alt_kalman {
   BLA::Matrix<3, 3> state_transition_model_transpose_;
   BLA::Matrix<3, 3> predict_P_;
   BLA::Matrix<3, 3> correction_P_;
-  BLA::Matrix<3, 3> Q_;
-  BLA::Matrix<3, 3> R_;
-  BLA::Matrix<3, 3> H_;
-  BLA::Matrix<3, 3> G_;
+  BLA::Matrix<2, 2> Q_;
+  BLA::Matrix<3, 2> G_;
+  BLA::Matrix<2, 3> G_transpose_;
+  BLA::Matrix<1, 1> R_;
+  BLA::Matrix<1, 3> H_;
+  BLA::Matrix<3, 1> H_transpose_;
 
   float gravity_ = 9.80665;
 
-
-  // Bias beta
   float beta = -0.01;
 
-  // Q
-  float q1 = 0.1 * 0.1;
-  float q2 = 1.0 * 1.0;
-
-  // R
   float R = 0.004 * 0.004;
 
-public:
-  float step = 1.0 / 100.0;
+  float step_ = 1.0 / 500.0;
 
-  // state
-  float velocity_  = 0.0;
-  float altitude_ = 0.0;
-  float bias_ = 0.0;
-
-  // Method
-  Alt_kalman();
-  void initialize();
-  void update(float z_sens, float accel, float h);
-  void reset(void);
-  float getAltitude() { return altitude_; }
-  float getVelocity() { return velocity_; }
-
+  int loop_count_ = 0;
 };
-
 #endif

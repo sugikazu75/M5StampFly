@@ -32,9 +32,9 @@ void ExtendedKalmanFilter::initialize()
     G_(0, 0) = step;
     G_(1, 1) = step;
     G_(2, 2) = step;
-    G_(6, 3) = 1.0;
-    G_(7, 4) = 1.0;
-    G_(8, 5) = 1.0;
+    G_(6, 3) = step;
+    G_(7, 4) = step;
+    G_(8, 5) = step;
 
     Q_ = (float)0.01 * BLA::Eye<6, 6>();
 
@@ -84,8 +84,12 @@ void ExtendedKalmanFilter::update(float x_vel, float y_vel, float altitude, floa
     // observation_(1) = y_vel * altitude / 11.0;
     int n_pix = 30;
     float h = altitude / rotation_matrix_(2, 2);
-    observation_(0) = (h * 1.0) / (0.033 * n_pix) * x_vel - h * omega_y;
-    observation_(1) = (h * 1.0) / (0.033 * n_pix) * y_vel + h * omega_x;
+    if(h < 0.2)
+      h = 0.0;
+
+    float tan21 = tan(21.0 * M_PI / 180.0);
+    observation_(0) = (h * tan21) / (0.05 * n_pix) * x_vel - h * omega_y;
+    observation_(1) = (h * tan21) / (0.05 * n_pix) * y_vel + h * omega_x;
     observation_(2) = altitude;
 
     if(loop_count_ % 10 == 0)
@@ -93,8 +97,7 @@ void ExtendedKalmanFilter::update(float x_vel, float y_vel, float altitude, floa
       // USBSerial.print("control_input_model_: ");
       // USBSerial.print(control_input_model_);
       // USBSerial.print("\n");
-      // USBSerial.print("observation_: ");
-      // USBSerial.print(observation_);
+      // USBSerial.printf("observation_: %f %f %f\n", observation_(0), observation_(1), observation_(2));
       // USBSerial.print("\n");
     }
 
@@ -143,9 +146,6 @@ void ExtendedKalmanFilter::correct()
       // USBSerial.print("S_inverse: ");
       // USBSerial.print(S_inverse);
       // USBSerial.print("\n");
-      // USBSerial.print("estimate_state_: ");
-      // USBSerial.print(estimate_state_);
-      // USBSerial.print("\n");
-      // USBSerial.print("\n");
+      // USBSerial.printf("estimate_state_:\n %f %f %f\n %f %f %f\n %f %f %f\n", estimate_state_(0), estimate_state_(1), estimate_state_(2), estimate_state_(3), estimate_state_(4), estimate_state_(5), estimate_state_(6), estimate_state_(7), estimate_state_(8));
   }
 }
