@@ -33,21 +33,23 @@ Alt_kalman::Alt_kalman() {};
 
 void Alt_kalman::initialize()
 {
-  estimate_state_ = {0.0, 0.0, 0.0};
-  predict_state_ = {0.0, 0.0, 0.0};
+  estimate_state_ = BLA::Zeros<3, 1>();
+  predict_state_ = BLA::Zeros<3, 1>();
   state_transition_model_ = {1.0, 0.0, -gravity_ * step,
                              step, 1.0, 0.0,
                              0.0, 0.0, 1 + beta * step};
   state_transition_model_transpose_ = {1.0, step, 0.0,
                                        0.0, 1.0, 0.0,
                                        -gravity_ * step, 0.0, 1.0 + beta * step};
-  predict_P_ = {100.0, 0.0, 0.0,
-                0.0, 100.0, 0.0,
-                0.0, 0.0, 100.0};
+  // predict_P_ = {100.0, 0.0, 0.0,
+  //               0.0, 100.0, 0.0,
+  //               0.0, 0.0, 100.0};
+  predict_P_ = (float)100.0 * BLA::Eye<3, 3>();
 
-  correction_P_ = {100.0, 0.0, 0.0,
-                   0.0, 100.0, 0.0,
-                   0.0, 0.0, 100.0};
+   // correction_P_ = {100.0, 0.0, 0.0,
+   //                  0.0, 100.0, 0.0,
+   //                  0.0, 0.0, 100.0};
+  correction_P_ = (float)100.0 * BLA::Eye<3, 3>();
 
   Q_ = {q1, 0.0, 0.0,
         0.0, 0.0, 0.0,
@@ -87,7 +89,7 @@ void Alt_kalman::update(float z_sens, float accel, float h)
 
   // inovation
   BLA::Matrix<3, 1> observation = {0.0, z_sens, 0.0};
-  BLA::Matrix<3, 1> e = observation - H_ * estimate_state_;
+  BLA::Matrix<3, 1> e = observation - H_ * predict_state_;
 
   // estimate state
   estimate_state_ = predict_state_ + K * e;

@@ -4,6 +4,7 @@
 #include <memory>
 #include <aerial_robot/state_estimation/attitude/attitude_estimator.hpp>
 #include <aerial_robot/state_estimation/altitude/altitude_estimator.hpp>
+#include <aerial_robot/state_estimation/position/position_estimator.hpp>
 
 class Odometry
 {
