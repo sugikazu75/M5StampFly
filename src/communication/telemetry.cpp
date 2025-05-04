@@ -40,6 +40,8 @@ float telemetry_roll_ = 0.0;
 float telemetry_pitch_ = 0.0;
 float telemetry_yaw_ = 0.0;
 float battery_voltage_ = 0.0;
+float telemetry_position_x_ = 0.0;
+float telemetry_position_y_ = 0.0;
 float altitude_       = 0.0;
 
 void telemetry_sequence(void);
@@ -54,13 +56,8 @@ void data_set_uint8(uint8_t* datalist, uint8_t value, uint8_t* index);
 
 void telemetry(void) {
     uint8_t senddata[MAXINDEX];
-    Telem_cnt++;
 
-    const uint8_t N = 10;
-    if (Telem_cnt == N){
-        telemetry_sequence();
-        Telem_cnt = 0;
-    }
+    telemetry_sequence();
 }
 
 void telemetry_sequence(void) {
@@ -85,6 +82,16 @@ void setRpy(float roll, float pitch, float yaw)
 void setBatteryVoltage(float voltage)
 {
     battery_voltage_ = voltage;
+}
+
+void setPositionX(float x)
+{
+    telemetry_position_x_ = x;
+}
+
+void setPositionY(float y)
+{
+    telemetry_position_y_ = y;
 }
 
 void setAltitude(float altitude)
@@ -124,8 +131,8 @@ void make_telemetry_data(uint8_t* senddata) {
     data_set(senddata, Alt_velocity, &index);                      // 19 Alt Velocity
     data_set(senddata, Z_dot_ref, &index);                         // 20 Z_dot_ref
     // data_set(senddata, FrontRight_motor_duty, index);
-    data_set(senddata, FrontLeft_motor_duty, &index);  // 21 FrontLeft_motor_duty
-    data_set(senddata, RearRight_motor_duty, &index);  // 22 RearRight_motor_duty
+    data_set(senddata, telemetry_position_x_, &index);  // 21
+    data_set(senddata, telemetry_position_y_, &index);  // 22
     // data_set(senddata, RearLeft_motor_duty, index);
     data_set(senddata, Alt_ref, &index);            // 23 Alt_ref
     data_set(senddata, Altitude2, &index);          // 24 Altitude2

@@ -31,12 +31,15 @@
 namespace Telemetry {
     extern float telemetry_roll_, telemetry_pitch_, telemetry_yaw_;
     extern float battery_voltage_;
+    extern float telemetry_position_x_, telemetry_position_y_;
     extern float altitude_;
 
     void telemetry(void);
 
     void setRpy(float roll, float pitch, float yaw);
     void setBatteryVoltage(float voltage);
+    void setPositionX(float x);
+    void setPositionY(float y);
     void setAltitude(float altitude);
 }
 
