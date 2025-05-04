@@ -47,6 +47,8 @@
 #include <aerial_robot/flight_control/underactuated_flight_control.hpp>
 #include <aerial_robot/wrench_allocation/quadrotor_wrench_allocation.hpp>
 #include <aerial_robot/state_estimation/attitude/attitude_estimator.hpp>
+#include <aerial_robot/state_estimation/altitude/altitude_estimator.hpp>
+#include <aerial_robot/state_estimation/position/position_estimator.hpp>
 #include <aerial_robot/state_estimation/state_estimator.hpp>
 #include <aerial_robot/navigation/underactuated_navigation.hpp>
 
@@ -64,6 +66,7 @@ std::shared_ptr<INA3221> battery_voltage;
 std::shared_ptr<Odometry> odom;
 std::shared_ptr<AttitudeEstimator> attitude_estimator;
 std::shared_ptr<AltitudeEstimator> altitude_estimator;
+std::shared_ptr<PositionEstimator> position_estimator;
 
 std::shared_ptr<BaseNavigator> navigator;
 std::shared_ptr<UnderActuatedFlightController> flight_control;
@@ -74,6 +77,10 @@ std::shared_ptr<Motor> motor3;
 std::shared_ptr<Motor> motor4;
 std::shared_ptr<QuadrotorWrenchAllocation> wrench_allocation;
 std::shared_ptr<QuadrotorHardware> hardware;
+
+void mainTask(void *pvParameters);
+void telemetryTask(void *pvParameters);
+void ledTask(void *pvParameters);
 
 void setup() {
 #if 1
@@ -115,6 +122,8 @@ void setup() {
   attitude_estimator = std::make_shared<AttitudeEstimator>(imu, mag);
   altitude_estimator = std::make_shared<AltitudeEstimator>(imu);
   altitude_estimator->initialize();
+  position_estimator = std::make_shared<PositionEstimator>(attitude_estimator,
+                                                           altitude_estimator);
 
   odom = std::make_shared<Odometry>(attitude_estimator,
                                     altitude_estimator);
@@ -164,7 +173,18 @@ void setup() {
   start_tone();
   init_button();
 
+  onboard_led1(PERPLE, 1);
+  led_show();;
+  imu->calibrate();
+  onboard_led1(BLUE, 1);
+  led_show();
+
+  xTaskCreate(mainTask, "mainTask", 8192, NULL, 20, NULL);
+  xTaskCreate(telemetryTask, "telemetryTask", 8192, NULL, 10, NULL);
+  xTaskCreate(ledTask, "ledTask", 2048, NULL, 1, NULL);
+
   delay(100);
+
   /* end debug*/
 #endif
 
@@ -176,21 +196,75 @@ void setup() {
 #endif
 }
 
+void mainTask(void *pvParameters) {
+  for(;;)
+  {
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+
+    optical_flow->update();
+
+    attitude_estimator->update();
+    altitude_estimator->update();
+    position_estimator->update(optical_flow->getDeltaX(), optical_flow->getDeltaY(),
+                               altitude_estimator->getAltitude(), imu->getAccX(), imu->getAccY(), imu->getAccZ(),
+                               imu->getGyroX(), imu->getGyroY(), imu->getGyroZ());
+
+    navigator->update();
+
+    vTaskDelayUntil(&xLastWakeTime, 2); // 500Hz
+  }
+}
+
+void telemetryTask(void *pvParameters) {
+  for(;;)
+    {
+      TickType_t xLastWakeTime = xTaskGetTickCount();
+
+      BLA::Matrix<3, 1> rpy= attitude_estimator->getRpy();
+      float voltage = battery_voltage->getVoltage(INA3221_CH2);
+      Telemetry::setRpy(rpy(0), rpy(1), rpy(2));
+      Telemetry::setBatteryVoltage(voltage);
+      Telemetry::setPositionX(position_estimator->getPosition()(0));
+      Telemetry::setPositionY(position_estimator->getPosition()(1));
+      Telemetry::setAltitude(altitude_estimator->getAltitude());
+      Telemetry::telemetry();
+
+      vTaskDelayUntil(&xLastWakeTime, 200); // 5Hz
+  }
+}
+
+void ledTask(void *pvParameters) {
+  for(;;)
+  {
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+
+    led_show();
+
+    vTaskDelayUntil(&xLastWakeTime, 1000); // 5Hz
+  }
+}
+
 void loop() {
 #if 1
   /* begin debug */
   // optical flow (PMW3901)
-  optical_flow->update();
-
-  attitude_estimator->update();
-  altitude_estimator->update();
-  // altitude_estimator->initialize();
-
-  navigator->update();
   // flight_control->update();
 
   // wrench_allocation->update(flight_control->getControlInput());
   // hardware->update(wrench_allocation->getActuatorInput());
+
+  // BLA::Matrix<4,4> hoge = BLA::Zeros<4,4>();
+  // USBSerial.print(hoge);
+  // USBSerial.printf("\n");
+  // hoge(2, 2) = 1.0;
+  // hoge = hoge * (float)20;
+  // USBSerial.print(hoge);
+  // USBSerial.printf("\n");
+  // USBSerial.printf("\n");
+  // USBSerial.printf("\n");
+  // USBSerial.printf("\n");
+  // USBSerial.printf("\n");
+
 
   // imu (bmi270)
   // imu_update();
@@ -240,26 +314,7 @@ void loop() {
   // USBSerial.println();
 
   // send robot data to controller
-  {
-    BLA::Matrix<3,1> rpy= attitude_estimator->getRpy();
-    float voltage = battery_voltage->getVoltage(INA3221_CH2);
 
-    Telemetry::setRpy(rpy(0), rpy(1), rpy(2));
-    Telemetry::setBatteryVoltage(voltage);
-    Telemetry::setAltitude(altitude_estimator->getAltitude());
-    Telemetry::telemetry();
-  }
-
-  led_show();
-
-  delay(10);
   /* end debug */
 #endif
-
-#if 0
-  /* begin deploy */
-  loop_400Hz();
-  /* end deploy */
-#endif
-
 }
