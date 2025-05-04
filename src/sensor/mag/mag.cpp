@@ -24,7 +24,12 @@ void Magnetmeter::initialize()
 
 void Magnetmeter::update()
 {
+  if(micros() - last_update_time_ < MAG_UPDATE_DU * 1000 * 1000)
+    return;
+
   readMagData();
+  last_update_time_ = micros();
+
   sphereMapping();
 }
 

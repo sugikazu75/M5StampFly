@@ -2,6 +2,9 @@
 
 #include <BasicLinearAlgebra.h>
 
+#define MAG_UPDATE_HZ 30.0f
+#define MAG_UPDATE_DU (1.0f / MAG_UPDATE_HZ)
+
 class Magnetmeter
 {
 public:
@@ -24,7 +27,6 @@ protected:
   BLA::Matrix<3, 3> scaling_matrix_inv_;
 
 private:
+  uint32_t last_update_time_ = 0;
   void sphereMapping();
 };
-
-

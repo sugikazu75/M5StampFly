@@ -30,12 +30,12 @@ void ImuBMI270::initialize()
 void ImuBMI270::readImuData()
 {
   imu_update();
-  acc_data_(0) = imu_get_acc_y();
-  acc_data_(1) = -imu_get_acc_x();
-  acc_data_(2) = imu_get_acc_z();
-  gyro_data_(0) = imu_get_gyro_y();
-  gyro_data_(1) = -imu_get_gyro_x();
-  gyro_data_(2) = imu_get_gyro_z();
+  acc_data_raw_(0) = imu_get_acc_y();
+  acc_data_raw_(1) = -imu_get_acc_x();
+  acc_data_raw_(2) = imu_get_acc_z();
+  gyro_data_raw_(0) = imu_get_gyro_y();
+  gyro_data_raw_(1) = -imu_get_gyro_x();
+  gyro_data_raw_(2) = imu_get_gyro_z();
 }
 
 void ImuBMI270::bmi270_dev_init(void)

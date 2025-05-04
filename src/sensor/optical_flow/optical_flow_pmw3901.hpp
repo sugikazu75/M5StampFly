@@ -28,5 +28,5 @@ public:
   ~OpticalFlowPMW3901() = default;
 
   void initialize() override;
-  void update() override;
+  void readOpticalFlowData();
 };

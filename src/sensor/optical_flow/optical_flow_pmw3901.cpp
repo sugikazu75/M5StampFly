@@ -7,7 +7,7 @@ void OpticalFlowPMW3901::initialize()
     USBSerial.printf("optical flow init done!\n");
 }
 
-void OpticalFlowPMW3901::update()
+void OpticalFlowPMW3901::readOpticalFlowData()
 {
   int16_t tmp_x, tmp_y;
   PMW3901::readMotionCount(&tmp_x, &tmp_y);
