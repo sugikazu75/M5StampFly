@@ -27,14 +27,14 @@
 #include "imu.hpp"
 #include "tof.hpp"
 #include "flight_control.hpp"
-#include "sensor/mag/mag_bmm150.hpp"
+// #include "sensor/mag/mag_bmm150.hpp"
 #include <memory>
 #include <aerial_robot/state_estimation/attitude/complementary_ahrs.hpp>
 
 Madgwick Drone_ahrs;
 ComplementaryAHRS complementary_filter;
 Alt_kalman EstimatedAltitude;
-std::shared_ptr<MagnetmeterBMM150> magnetmeter;
+// std::shared_ptr<MagnetmeterBMM150> magnetmeter;
 
 INA3221 ina3221(INA3221_ADDR40_GND);  // Set I2C address to 0x40 (A0 pin -> GND)
 Filter acc_filter;
@@ -182,8 +182,8 @@ void sensor_init() {
     EstimatedAltitude.initialize();
 
     // magnetmeter
-    magnetmeter = std::make_shared<MagnetmeterBMM150>();
-    magnetmeter->initialize();
+    // magnetmeter = std::make_shared<MagnetmeterBMM150>();
+    // magnetmeter->initialize();
 }
 
 float sensor_read(void) {
@@ -329,25 +329,25 @@ float sensor_read(void) {
                 // Alt_velocity,-(Accel_z_raw - Accel_z_offset)*9.81/(-Accel_z_offset));
             }
 
-            magnetmeter->update();
-            BLA::Matrix<3, 1> mag_data = magnetmeter->getMag();
-            float mag_data_x  = mag_x_filter.update(mag_data(0), Interval_time);
-            float mag_data_y  = mag_y_filter.update(mag_data(1), Interval_time);
-            float mag_data_z  = mag_z_filter.update(mag_data(2), Interval_time);
+            // magnetmeter->update();
+            // BLA::Matrix<3, 1> mag_data = magnetmeter->getMag();
+            // float mag_data_x  = mag_x_filter.update(mag_data(0), Interval_time);
+            // float mag_data_y  = mag_y_filter.update(mag_data(1), Interval_time);
+            // float mag_data_z  = mag_z_filter.update(mag_data(2), Interval_time);
 
             USBSerial.printf("rpy: %9.6f %9.6f %9.6f\n", Roll_angle, Pitch_angle, Yaw_angle);
-            USBSerial.print("mag: ");
-            USBSerial.print(mag_data);
+            // USBSerial.print("mag: ");
+            // USBSerial.print(mag_data);
             USBSerial.print("\n");
             USBSerial.printf("gyro: %9.6f %9.6f %9.6f\n", Roll_rate, Pitch_rate, Yaw_rate);
             USBSerial.printf("acc: %9.6f %9.6f %9.6f\n", Accel_x, Accel_y, Accel_z);
 
-            USBSerial.printf("filtered mag: %9.6f %9.6f %9.6f\n", mag_data_x, mag_data_y, mag_data_z);
+            // USBSerial.printf("filtered mag: %9.6f %9.6f %9.6f\n", mag_data_x, mag_data_y, mag_data_z);
             USBSerial.print("\n");
 
-            Drone_ahrs.update((Pitch_rate) * (float)RAD_TO_DEG, (Roll_rate) * (float)RAD_TO_DEG, -(Yaw_rate) * (float)RAD_TO_DEG,
-                              Accel_y, Accel_x, -Accel_z,
-                              -mag_data_y, mag_data_x, mag_data_z);
+            // Drone_ahrs.update((Pitch_rate) * (float)RAD_TO_DEG, (Roll_rate) * (float)RAD_TO_DEG, -(Yaw_rate) * (float)RAD_TO_DEG,
+            //                   Accel_y, Accel_x, -Accel_z,
+            //                   -mag_data_y, mag_data_x, mag_data_z);
         }
         else
           {
