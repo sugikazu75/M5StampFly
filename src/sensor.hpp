@@ -37,6 +37,7 @@
 #include <driver/spi_master.h>
 #include "driver/gpio.h"
 #include "sdkconfig.h"
+#include <sensor/tof/tof_vl53l3c.hpp>
 
 #define SDA_PIN      (3)
 #define SCL_PIN      (4)
