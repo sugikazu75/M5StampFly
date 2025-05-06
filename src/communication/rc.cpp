@@ -41,7 +41,7 @@ volatile float Stick[16];
 volatile uint8_t option_button = 0;
 volatile uint8_t Recv_MAC[3];
 
-namespace RemoteControl{
+namespace RemoteControl {
 
 void on_esp_now_sent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
@@ -133,7 +133,8 @@ void rc_init(void) {
     WiFi.disconnect();
 
     WiFi.macAddress((uint8_t *)MyMacAddr);
-    USBSerial.printf("MAC ADDRESS: %02X:%02X:%02X:%02X:%02X:%02X\r\n", MyMacAddr[0], MyMacAddr[1], MyMacAddr[2], MyMacAddr[3], MyMacAddr[4], MyMacAddr[5]);
+    USBSerial.printf("MAC ADDRESS: %02X:%02X:%02X:%02X:%02X:%02X\r\n", MyMacAddr[0], MyMacAddr[1], MyMacAddr[2],
+                     MyMacAddr[3], MyMacAddr[4], MyMacAddr[5]);
 
     if (esp_now_init() == ESP_OK) {
         USBSerial.println("ESPNow Init Success");
@@ -194,7 +195,7 @@ uint8_t telemetry_send(uint8_t *data, uint16_t datalen) {
         result = esp_now_send(peerInfo.peer_addr, data, datalen);
         cnt    = 0;
     } else
-    cnt++;
+        cnt++;
 
     if (esp_now_send_status == 0) {
         error_flag = 0;
@@ -218,11 +219,10 @@ uint8_t rc_isconnected(void) {
     bool status;
     Connect_flag++;
     if (Connect_flag < 40)
-    status = 1;
+        status = 1;
     else
-    status = 0;
+        status = 0;
     // USBSerial.printf("%d \n\r", Connect_flag);
     return status;
 }
-} // namespace RemoteControl
-
+}  // namespace RemoteControl

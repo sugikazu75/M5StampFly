@@ -33,26 +33,26 @@ uint8_t Telem_cnt      = 0;
 const uint8_t MAXINDEX = 120;
 const uint8_t MININDEX = 30;
 
-namespace Telemetry{
-  float telemetry_roll_ = 0.0;
-  float telemetry_pitch_ = 0.0;
-  float telemetry_yaw_ = 0.0;
-  float battery_voltage_ = 0.0;
-  float telemetry_position_x_ = 0.0;
-  float telemetry_position_y_ = 0.0;
-  float altitude_       = 0.0;
-  uint8_t telemetry_flight_state_ = 0;
-  float average_loop_time_ = 0.0;
+namespace Telemetry {
+float telemetry_roll_           = 0.0;
+float telemetry_pitch_          = 0.0;
+float telemetry_yaw_            = 0.0;
+float battery_voltage_          = 0.0;
+float telemetry_position_x_     = 0.0;
+float telemetry_position_y_     = 0.0;
+float altitude_                 = 0.0;
+uint8_t telemetry_flight_state_ = 0;
+float average_loop_time_        = 0.0;
 
-  void telemetry_sequence(void);
-  void make_telemetry_data(uint8_t* senddata);
-  void data2log(uint8_t* data_list, float add_data, uint8_t index);
-  void float2byte(float x, uint8_t* dst);
-  void append_data(uint8_t* data, uint8_t* newdata, uint8_t index, uint8_t len);
-  void data_set(uint8_t* datalist, float value, uint8_t* index);
-  void data_set_uint32(uint8_t* datalist, uint32_t value, uint8_t* index);
-  void data_set_uint16(uint8_t* datalist, uint16_t value, uint8_t* index);
-  void data_set_uint8(uint8_t* datalist, uint8_t value, uint8_t* index);
+void telemetry_sequence(void);
+void make_telemetry_data(uint8_t* senddata);
+void data2log(uint8_t* data_list, float add_data, uint8_t index);
+void float2byte(float x, uint8_t* dst);
+void append_data(uint8_t* data, uint8_t* newdata, uint8_t index, uint8_t len);
+void data_set(uint8_t* datalist, float value, uint8_t* index);
+void data_set_uint32(uint8_t* datalist, uint32_t value, uint8_t* index);
+void data_set_uint16(uint8_t* datalist, uint16_t value, uint8_t* index);
+void data_set_uint8(uint8_t* datalist, uint8_t value, uint8_t* index);
 
 void telemetry(void) {
     uint8_t senddata[MAXINDEX];
@@ -66,24 +66,34 @@ void telemetry_sequence(void) {
     make_telemetry_data(senddata);
 
     if (RemoteControl::telemetry_send(senddata, sizeof(senddata)) == 1)
-      esp_led(0x110000, 1);  // Telemetory Reciver OFF
+        esp_led(0x110000, 1);  // Telemetory Reciver OFF
     else
-      esp_led(0x001100, 1);  // Telemetory Reciver ON
-
+        esp_led(0x001100, 1);  // Telemetory Reciver ON
 }
 
-void setRpy(float roll, float pitch, float yaw)
-{
-    telemetry_roll_ = roll;
+void setRpy(float roll, float pitch, float yaw) {
+    telemetry_roll_  = roll;
     telemetry_pitch_ = pitch;
-    telemetry_yaw_ = yaw;
+    telemetry_yaw_   = yaw;
 }
-void setBatteryVoltage(float voltage) {battery_voltage_ = voltage;}
-void setPositionX(float x) {telemetry_position_x_ = x;}
-void setPositionY(float y) {telemetry_position_y_ = y;}
-void setAltitude(float altitude) {altitude_ = altitude;}
-void setFlightState(uint8_t flight_state) {telemetry_flight_state_ = flight_state;}
-void setAverageLoopTime(float time) {average_loop_time_ = time;}
+void setBatteryVoltage(float voltage) {
+    battery_voltage_ = voltage;
+}
+void setPositionX(float x) {
+    telemetry_position_x_ = x;
+}
+void setPositionY(float y) {
+    telemetry_position_y_ = y;
+}
+void setAltitude(float altitude) {
+    altitude_ = altitude;
+}
+void setFlightState(uint8_t flight_state) {
+    telemetry_flight_state_ = flight_state;
+}
+void setAverageLoopTime(float time) {
+    average_loop_time_ = time;
+}
 
 void make_telemetry_data(uint8_t* senddata) {
     float d_float;
@@ -94,39 +104,39 @@ void make_telemetry_data(uint8_t* senddata) {
     senddata[0] = 88;
     senddata[1] = 88;
     index       = 2;
-    data_set(senddata, 0.0, &index);                                   // 1 Time
-    data_set(senddata, 0.0, &index);                                  // 2 delta Time
-    data_set(senddata, telemetry_roll_, &index);    // 3 Roll_angle
-    data_set(senddata, telemetry_pitch_, &index);  // 4 Pitch_angle
+    data_set(senddata, 0.0, &index);                 // 1 Time
+    data_set(senddata, 0.0, &index);                 // 2 delta Time
+    data_set(senddata, telemetry_roll_, &index);     // 3 Roll_angle
+    data_set(senddata, telemetry_pitch_, &index);    // 4 Pitch_angle
     data_set(senddata, telemetry_yaw_, &index);      // 5 Yaw_angle
-    data_set(senddata, average_loop_time_, &index);                         // 6 average loop time
-    data_set(senddata, 0.0, &index);                        // 7 Q
-    data_set(senddata, 0.0, &index);                          // 8 R
-    data_set(senddata, 0.0, &index);                // 9 Roll_angle_reference
-    data_set(senddata, 0.0, &index);  // 10 Pitch_angle_reference
+    data_set(senddata, average_loop_time_, &index);  // 6 average loop time
+    data_set(senddata, 0.0, &index);                 // 7 Q
+    data_set(senddata, 0.0, &index);                 // 8 R
+    data_set(senddata, 0.0, &index);                 // 9 Roll_angle_reference
+    data_set(senddata, 0.0, &index);                 // 10 Pitch_angle_reference
     // data_set(senddata, 0.5 * 189.0f* Pitch_angle_command, index);
-    data_set(senddata, 0.0, &index);    // 11 P ref
-    data_set(senddata, 0.0, &index);   // 12 Q ref
-    data_set(senddata, 0.0, &index);     // 13 R ref
-    data_set(senddata, 0.0, &index);  // 14 T ref
-    data_set(senddata, battery_voltage_, &index);                           // 15 Voltage
-    data_set(senddata, 0.0, &index);                       // 16 Accel_x_raw
-    data_set(senddata, 0.0, &index);                       // 17 Accel_y_raw
-    data_set(senddata, 0.0, &index);                       // 18 Accel_z_raw
-    data_set(senddata, 0.0, &index);                      // 19 Alt Velocity
-    data_set(senddata, 0.0, &index);                         // 20 Z_dot_ref
+    data_set(senddata, 0.0, &index);               // 11 P ref
+    data_set(senddata, 0.0, &index);               // 12 Q ref
+    data_set(senddata, 0.0, &index);               // 13 R ref
+    data_set(senddata, 0.0, &index);               // 14 T ref
+    data_set(senddata, battery_voltage_, &index);  // 15 Voltage
+    data_set(senddata, 0.0, &index);               // 16 Accel_x_raw
+    data_set(senddata, 0.0, &index);               // 17 Accel_y_raw
+    data_set(senddata, 0.0, &index);               // 18 Accel_z_raw
+    data_set(senddata, 0.0, &index);               // 19 Alt Velocity
+    data_set(senddata, 0.0, &index);               // 20 Z_dot_ref
     // data_set(senddata, FrontRight_motor_duty, index);
     data_set(senddata, telemetry_position_x_, &index);  // 21
     data_set(senddata, telemetry_position_y_, &index);  // 22
     // data_set(senddata, RearLeft_motor_duty, index);
-    data_set(senddata, 0.0, &index);            // 23 Alt_ref
-    data_set(senddata, 0.0, &index);          // 24 Altitude2
-    data_set(senddata, altitude_, &index);           // 25 Sense_Alt
-    data_set(senddata, 0.0, &index);                 // 26 Az
-    data_set(senddata, 0.0, &index);            // 27 Az_bias
-    data_set_uint8(senddata, 0, &index);     // 28.1 Alt_flag(1 byte)
-    data_set_uint8(senddata, telemetry_flight_state_, &index);         // 28.2 fly mode(1 byte)
-    data_set_uint16(senddata, 0, &index);  // 28.3-4 tof front
+    data_set(senddata, 0.0, &index);                            // 23 Alt_ref
+    data_set(senddata, 0.0, &index);                            // 24 Altitude2
+    data_set(senddata, altitude_, &index);                      // 25 Sense_Alt
+    data_set(senddata, 0.0, &index);                            // 26 Az
+    data_set(senddata, 0.0, &index);                            // 27 Az_bias
+    data_set_uint8(senddata, 0, &index);                        // 28.1 Alt_flag(1 byte)
+    data_set_uint8(senddata, telemetry_flight_state_, &index);  // 28.2 fly mode(1 byte)
+    data_set_uint16(senddata, 0, &index);                       // 28.3-4 tof front
 }
 
 void data_set(uint8_t* datalist, float value, uint8_t* index) {
@@ -171,4 +181,4 @@ void append_data(uint8_t* data, uint8_t* newdata, uint8_t index, uint8_t len) {
     }
 }
 
-} // namespace Telemetry
+}  // namespace Telemetry

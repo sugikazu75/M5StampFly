@@ -29,22 +29,22 @@
 #include <stdint.h>
 
 namespace Telemetry {
-    extern float telemetry_roll_, telemetry_pitch_, telemetry_yaw_;
-    extern float battery_voltage_;
-    extern float telemetry_position_x_, telemetry_position_y_;
-    extern float altitude_;
-    extern uint8_t telemetry_flight_state_;
-    extern float average_loop_time_;
+extern float telemetry_roll_, telemetry_pitch_, telemetry_yaw_;
+extern float battery_voltage_;
+extern float telemetry_position_x_, telemetry_position_y_;
+extern float altitude_;
+extern uint8_t telemetry_flight_state_;
+extern float average_loop_time_;
 
-    void telemetry(void);
+void telemetry(void);
 
-    void setRpy(float roll, float pitch, float yaw);
-    void setBatteryVoltage(float voltage);
-    void setPositionX(float x);
-    void setPositionY(float y);
-    void setAltitude(float altitude);
-    void setFlightState(uint8_t flight_state);
-    void setAverageLoopTime(float time);
-}
+void setRpy(float roll, float pitch, float yaw);
+void setBatteryVoltage(float voltage);
+void setPositionX(float x);
+void setPositionY(float y);
+void setAltitude(float altitude);
+void setFlightState(uint8_t flight_state);
+void setAverageLoopTime(float time);
+}  // namespace Telemetry
 
 #endif

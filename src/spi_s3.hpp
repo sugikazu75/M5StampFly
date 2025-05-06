@@ -6,19 +6,17 @@
 extern "C" {
 #endif
 
-
 #include <driver/spi_master.h>
 #include "bmi2.h"
 #include "bmi2_defs.h"
 
-
 #define PIN_NUM_MISO (43)
 #define PIN_NUM_MOSI (14)
-#define PIN_NUM_CLK (44)
-#define BMI_CS (46)
-#define PMW_CS (12)
+#define PIN_NUM_CLK  (44)
+#define BMI_CS       (46)
+#define PMW_CS       (12)
 
-//SPIバスの設定
+// SPIバスの設定
 extern spi_bus_config_t spi_bus_cfg;
 // SPIデバイスの設定
 // extern spi_device_interface_config_t devcfg[2];

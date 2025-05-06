@@ -4,13 +4,13 @@
 #include <communication/rc.hpp>
 #include <config.h>
 
-class UnderActuatedNavigator : public BaseNavigator
-{
-public:
-  UnderActuatedNavigator(std::shared_ptr<Odometry> odom) : BaseNavigator(odom) {}
+class UnderActuatedNavigator : public BaseNavigator {
+   public:
+    UnderActuatedNavigator(std::shared_ptr<Odometry> odom) : BaseNavigator(odom) {
+    }
 
-  ~UnderActuatedNavigator() = default;
+    ~UnderActuatedNavigator() = default;
 
-  void initialize() override {};
-  void update() override;
+    void initialize() override{};
+    void update() override;
 };

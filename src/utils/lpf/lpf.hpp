@@ -13,4 +13,3 @@ class Filter {
     void reset(void);
     float update(float u, float h);
 };
-
