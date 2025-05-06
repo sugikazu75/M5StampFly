@@ -121,7 +121,7 @@ int8_t bmi2_spi_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, v
     // アドレス+データの書き込み
     trans.tx_buffer = Buffer;
     trans.rx_buffer = NULL;
-    trans.length    = 8 + (len) * 8;
+    trans.length    = 8 + len * 8;
     trans.rxlength  = 0;
 
     // 書き込み
