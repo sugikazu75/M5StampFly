@@ -14,8 +14,9 @@ QuadrotorHardware::QuadrotorHardware(std::vector<std::shared_ptr<Motor>> motors)
 
 void QuadrotorHardware::update(BLA::Matrix<4, 1> actuator_input)
 {
+  motor_pwms_ = actuator_input / (float)4.0;
   for(int i = 0; i < motors_.size(); i++)
     {
-      motors_.at(i)->setPwm(actuator_input(i));
+        motors_.at(i)->setPwm(motor_pwms_(i));
     }
 }

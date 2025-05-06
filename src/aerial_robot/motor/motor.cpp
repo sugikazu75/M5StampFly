@@ -25,5 +25,6 @@ void Motor::initialize()
 
 void Motor::setPwm(float duty)
 {
-  ledcWrite(motor_channel_,  (uint32_t)(255 * duty));
+  float clamped_duty = clamp(duty, 0.0f, 1.0f);
+  ledcWrite(motor_channel_,  (uint32_t)(255 * clamped_duty));
 }
