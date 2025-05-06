@@ -64,10 +64,10 @@ void tof_init(void) {
     ToF_bottom->comms_speed_khz   = 400;
     ToF_bottom->i2c_slave_address = 0x29;
 
-    ToF_front->comms_speed_khz   = 400;
-    ToF_front->i2c_slave_address = 0x29;
+    // ToF_front->comms_speed_khz   = 400;
+    // ToF_front->i2c_slave_address = 0x29;
 
-    // USBSerial.printf("#tof_i2c_init_status:%d\r\n",vl53lx_i2c_init());
+    // USBSerial.printf("#tof_i2c_init_status:%d\r\n", vl53lx_i2c_init());
 
     // ToF Pin Initialize
     pinMode(XSHUT_BOTTOM, OUTPUT);
@@ -78,16 +78,17 @@ void tof_init(void) {
 
     // ToF Disable
     digitalWrite(XSHUT_BOTTOM, LOW);
-    digitalWrite(XSHUT_FRONT, LOW);
+    // digitalWrite(XSHUT_FRONT, LOW);
 
     // Front ToF I2C address to 0x54
-    digitalWrite(XSHUT_FRONT, HIGH);
-    delay(100);
-    VL53LX_SetDeviceAddress(ToF_front, 0x54);
-    ToF_front->i2c_slave_address = 0x2A;
+    // digitalWrite(XSHUT_FRONT, HIGH);
+    // delay(100);
+    // VL53LX_SetDeviceAddress(ToF_front, 0x54);
+    // ToF_front->i2c_slave_address = 0x2A;
 
     delay(100);
     digitalWrite(XSHUT_BOTTOM, HIGH);
+    delay(100);
 
     // Bttom ToF setting
     USBSerial.printf("#1 WaitDeviceBooted Status:%d\n\r", VL53LX_WaitDeviceBooted(ToF_bottom));
@@ -103,17 +104,17 @@ void tof_init(void) {
     USBSerial.printf("#1 VL53LX: %04X\n\r", wordData);
 
     // Front ToF Setting
-    USBSerial.printf("#2 WaitDeviceBooted Status:%d\n\r", VL53LX_WaitDeviceBooted(ToF_front));
-    USBSerial.printf("#2 DataInit Status:%d\n\r", VL53LX_DataInit(ToF_front));
-    USBSerial.printf("#1 Range setting  Status:%d\n\r", VL53LX_SetDistanceMode(ToF_front, VL53LX_DISTANCEMODE_LONG));
-    USBSerial.printf("#2 SetMeasurementTimingBuget Status:%d\n\r",
-                     VL53LX_SetMeasurementTimingBudgetMicroSeconds(ToF_front, 33000));
-    USBSerial.printf("#2 RdByte Status:%d\n\r", VL53LX_RdByte(ToF_front, 0x010F, &byteData));
-    USBSerial.printf("#2 VL53LX Model_ID: %02X\n\r", byteData);
-    USBSerial.printf("#2 RdByte Status:%d\n\r", VL53LX_RdByte(ToF_front, 0x0110, &byteData));
-    USBSerial.printf("#2 VL53LX Module_Type: %02X\n\r", byteData);
-    USBSerial.printf("#2 RdWord Status:%d\n\r", VL53LX_RdWord(ToF_front, 0x010F, &wordData));
-    USBSerial.printf("#2 VL53LX: %04X\n\r", wordData);
+    // USBSerial.printf("#2 WaitDeviceBooted Status:%d\n\r", VL53LX_WaitDeviceBooted(ToF_front));
+    // USBSerial.printf("#2 DataInit Status:%d\n\r", VL53LX_DataInit(ToF_front));
+    // USBSerial.printf("#2 Range setting  Status:%d\n\r", VL53LX_SetDistanceMode(ToF_front, VL53LX_DISTANCEMODE_LONG));
+    // USBSerial.printf("#2 SetMeasurementTimingBuget Status:%d\n\r",
+    //                  VL53LX_SetMeasurementTimingBudgetMicroSeconds(ToF_front, 33000));
+    // USBSerial.printf("#2 RdByte Status:%d\n\r", VL53LX_RdByte(ToF_front, 0x010F, &byteData));
+    // USBSerial.printf("#2 VL53LX Model_ID: %02X\n\r", byteData);
+    // USBSerial.printf("#2 RdByte Status:%d\n\r", VL53LX_RdByte(ToF_front, 0x0110, &byteData));
+    // USBSerial.printf("#2 VL53LX Module_Type: %02X\n\r", byteData);
+    // USBSerial.printf("#2 RdWord Status:%d\n\r", VL53LX_RdWord(ToF_front, 0x010F, &wordData));
+    // USBSerial.printf("#2 VL53LX: %04X\n\r", wordData);
 
     attachInterrupt(INT_BOTTOM, &tof_int, FALLING);
 
