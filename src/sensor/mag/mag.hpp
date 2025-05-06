@@ -1,9 +1,7 @@
 #pragma once
 
+#include <config.h>
 #include <BasicLinearAlgebra.h>
-
-#define MAG_UPDATE_HZ 30.0f
-#define MAG_UPDATE_DU (1.0f / MAG_UPDATE_HZ)
 
 class Magnetmeter
 {

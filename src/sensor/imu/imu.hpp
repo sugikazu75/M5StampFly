@@ -1,9 +1,7 @@
 #pragma once
 
+#include <config.h>
 #include <BasicLinearAlgebra.h>
-
-#define IMU_UPDATE_HZ 500.0f
-#define IMU_UPDATE_DU (1.0f / IMU_UPDATE_HZ)
 
 class Imu
 {

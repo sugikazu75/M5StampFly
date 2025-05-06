@@ -8,7 +8,7 @@ Imu::Imu()
 
 void Imu::update()
 {
-  if(micros() - last_update_time_ < IMU_UPDATE_DU * 1000 * 1000)
+  if(micros() - last_update_time_ < SENSOR::IMU_UPDATE_DU * 1000 * 1000)
     return;
 
   readImuData();
@@ -29,7 +29,7 @@ void Imu::calibrate()
     gyro_bias_ += gyro_data_raw_;
     acc_bias_ += acc_data_raw_;
     N++;
-    delay(IMU_UPDATE_DU * 1000);
+    delay(SENSOR::IMU_UPDATE_DU * 1000);
   }
   gyro_bias_ = gyro_bias_ / (float)N;
   acc_bias_ = acc_bias_ / (float)N - BLA::Matrix<3, 1>{0.0, 0.0, 1.0};

@@ -2,9 +2,7 @@
 
 #include <BasicLinearAlgebra.h>
 #include <memory>
-
-#define OPTICAL_FLOW_UPDATE_HZ 20.0f
-#define OPTICAL_FLOW_UPDATE_DU (1.0f / OPTICAL_FLOW_UPDATE_HZ)
+#include <config.h>
 
 class OpticalFlow
 {
@@ -15,7 +13,7 @@ public:
   virtual void initialize();
   void update()
   {
-    if (micros() - last_update_time_ < OPTICAL_FLOW_UPDATE_DU * 1000 * 1000)
+    if (micros() - last_update_time_ < SENSOR::OPTICAL_FLOW_UPDATE_DU * 1000 * 1000)
       return;
 
     readOpticalFlowData();
