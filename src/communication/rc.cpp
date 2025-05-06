@@ -27,20 +27,10 @@
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
-#include "flight_control.hpp"
-
-// esp_now_peer_info_t slave;
 
 volatile uint16_t Connect_flag = 0;
 
-// Telemetry相手のMAC ADDRESS 4C:75:25:AD:B6:6C
-// ATOM Lite (C): 4C:75:25:AE:27:FC
-// 4C:75:25:AD:8B:20
-// 4C:75:25:AF:4E:84
-// 4C:75:25:AD:8B:20
-// 4C:75:25:AD:8B:20 赤水玉テープ　ATOM lite
 uint8_t TelemAddr[6] = {0};
-// uint8_t TelemAddr[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 volatile uint8_t MyMacAddr[6];
 volatile uint8_t peer_command[4] = {0xaa, 0x55, 0x16, 0x88};
 volatile uint8_t Rc_err_flag     = 0;
@@ -48,6 +38,7 @@ esp_now_peer_info_t peerInfo;
 
 // RC
 volatile float Stick[16];
+volatile uint8_t option_button = 0;
 volatile uint8_t Recv_MAC[3];
 
 namespace RemoteControl{
@@ -124,12 +115,7 @@ void OnDataRecv(const uint8_t *mac_addr, const uint8_t *recv_data, int data_len)
     Stick[BUTTON_FLIP]    = recv_data[20];
     Stick[CONTROLMODE]    = recv_data[21];  // Mode:rate or angle control
     Stick[ALTCONTROLMODE] = recv_data[22];  // 高度制御
-
-    ahrs_reset_flag = recv_data[23];
-
-    Stick[LOG] = 0.0;
-    // if (check_sum!=recv_data[23])USBSerial.printf("checksum=%03d recv_sum=%03d\n\r", check_sum, recv_data[23]);
-
+    option_button         = recv_data[23];  // Option button
 }
 
 // 送信コールバック

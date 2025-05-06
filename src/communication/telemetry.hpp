@@ -33,6 +33,8 @@ namespace Telemetry {
     extern float battery_voltage_;
     extern float telemetry_position_x_, telemetry_position_y_;
     extern float altitude_;
+    extern uint8_t telemetry_flight_state_;
+    extern float average_loop_time_;
 
     void telemetry(void);
 
@@ -41,6 +43,8 @@ namespace Telemetry {
     void setPositionX(float x);
     void setPositionY(float y);
     void setAltitude(float altitude);
+    void setFlightState(uint8_t flight_state);
+    void setAverageLoopTime(float time);
 }
 
 #endif

@@ -75,6 +75,7 @@ namespace RemoteControl {
 }
 
 extern volatile float Stick[16];
+extern volatile uint8_t option_button;
 extern volatile uint8_t Rc_err_flag;
 extern volatile uint8_t MyMacAddr[6];
 extern volatile uint8_t Recv_MAC[3];
