@@ -27,9 +27,11 @@
 #define TOF_HPP
 
 #include <stdint.h>
+#include <sensor/tof/tof.hpp>
 #include <vl53lx_api.h>
 #include <vl53lx_platform.h>
 
+namespace VL53LX{
 #define INT_BOTTOM   6
 #define XSHUT_BOTTOM 7
 #define INT_FRONT    8
@@ -41,5 +43,15 @@ int16_t tof_range_get(VL53LX_DEV dev);
 void tof_test_ranging(VL53LX_DEV dev);
 int16_t tof_bottom_get_range();
 int16_t tof_front_get_range();
+} // namespace VL53LX
 
+class TofVl53lx : public Tof
+{
+public:
+  TofVl53lx(){};
+  ~TofVl53lx() = default;
+
+  void initialize() override;
+  void readTofData();
+};
 #endif

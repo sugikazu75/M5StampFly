@@ -24,8 +24,19 @@
  */
 
 #include <Arduino.h>
-#include "tof.hpp"
+#include <sensor/tof/tof_vl53lx.hpp>
 
+void TofVl53lx::initialize()
+{
+  VL53LX::tof_init();
+}
+
+void TofVl53lx::readTofData()
+{
+  tof_range_ = VL53LX::tof_bottom_get_range();
+}
+
+namespace VL53LX {
 VL53LX_Dev_t tof_front;
 VL53LX_Dev_t tof_bottom;
 
@@ -206,3 +217,4 @@ void tof_test_ranging(VL53LX_DEV dev) {
     }
     USBSerial.printf("End!\n\r");
 }
+} // namespace VL53LX
