@@ -17,7 +17,7 @@ public:
 
   ~PIDController() = default;
 
-  void update(const float err_p, const float du, const float err_d)
+  void update(const float err_p, const float du, const float err_d, const float ff_term = 0.0)
   {
     err_p_ = clamp(err_p, -limit_err_p_, limit_err_p_);
     err_i_prev_ = err_i_;
@@ -28,7 +28,7 @@ public:
     i_term_ = clamp(err_i_ * i_gain_, -limit_i_, limit_i_);
     d_term_ = clamp(err_d_ * d_gain_, -limit_d_, limit_d_);
 
-    result_ = clamp(p_term_ + i_term_ + d_term_, -limit_sum_, limit_sum_);
+    result_ = clamp(p_term_ + i_term_ + d_term_ + ff_term, -limit_sum_, limit_sum_);
   }
 
   void reset()
@@ -37,6 +37,8 @@ public:
     err_i_prev_ = 0;
     result_ = 0;
   }
+
+  float result() {return result_; }
 
   void setPGain(const float p_gain) { p_gain_ = p_gain; }
   void setIGain(const float i_gain) { i_gain_ = i_gain; }
