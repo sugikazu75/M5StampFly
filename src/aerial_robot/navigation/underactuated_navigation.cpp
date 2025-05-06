@@ -1,11 +1,14 @@
 #include <aerial_robot/navigation/underactuated_navigation.hpp>
 
-void UnderActuatedNavigator::initialize()
-{
-}
-
 void UnderActuatedNavigator::update()
 {
+  if((flight_state_ != ARM_OFF_STATE) && option_button)
+  {
+    flight_state_ = ARM_OFF_STATE;
+    USBSerial.print("emergency stop\n");
+    return;
+  }
+
   // mode change
   switch(flight_state_)
     {
@@ -14,6 +17,8 @@ void UnderActuatedNavigator::update()
         if(Stick[BUTTON_ARM] && Stick[BUTTON_FLIP])
           {
             flight_state_ = TAKEOFF_STATE;
+            target_pos_(0) = odom_->getPos()(0);
+            target_pos_(1) = odom_->getPos()(1);
             target_pos_(2) = NAVIGATION::TAKEOFF_HEIGHT;
             target_rpy_(2) = odom_->getYaw();
             USBSerial.print("change to takeoff state\n");
@@ -25,6 +30,8 @@ void UnderActuatedNavigator::update()
         if(Stick[CONTROLMODE] && Stick[ALTCONTROLMODE])
           {
             flight_state_ = LAND_STATE;
+            target_pos_(0) = odom_->getPos()(0);
+            target_pos_(1) = odom_->getPos()(1);
             target_pos_(2) = NAVIGATION::LANDING_HEIGHT;
             target_rpy_(2) = odom_->getYaw();
             USBSerial.print("change to landing state\n");
@@ -50,17 +57,4 @@ void UnderActuatedNavigator::update()
     default:
       break;
     }
-
-#if 0
-  USBSerial.printf("%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f  %6.3f\n\r",
-                   Stick[THROTTLE],
-                   Stick[AILERON],
-                   Stick[ELEVATOR],
-                   Stick[RUDDER],
-                   Stick[BUTTON_ARM],
-                   Stick[BUTTON_FLIP],
-                   Stick[CONTROLMODE],
-                   Stick[ALTCONTROLMODE],
-                   Stick[LOG]);
-#endif
 }

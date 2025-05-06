@@ -11,6 +11,6 @@ public:
 
   ~UnderActuatedNavigator() = default;
 
-  void initialize() override;
+  void initialize() override {};
   void update() override;
 };
