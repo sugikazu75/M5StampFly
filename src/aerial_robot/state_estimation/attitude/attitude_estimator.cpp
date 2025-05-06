@@ -4,12 +4,20 @@ AttitudeEstimator::AttitudeEstimator(std::shared_ptr<Imu> imu, std::shared_ptr<M
   imu_(imu),
   magnetmeter_(magnetmeter)
 {
+  acc_x_lpf_.set_parameter(0.003, 0.002);
+  acc_y_lpf_.set_parameter(0.003, 0.002);
+  acc_z_lpf_.set_parameter(0.003, 0.002);
+  filtered_acc_ = BLA::Matrix<3, 1>(0.0, 0.0, 0.0);
 }
 
 void AttitudeEstimator::update()
 {
   imu_->update();
   magnetmeter_->update();
+
+  filtered_acc_(0) = acc_x_lpf_.update(imu_->getAccX(), 0.002);
+  filtered_acc_(1) = acc_y_lpf_.update(imu_->getAccY(), 0.002);
+  filtered_acc_(2) = acc_z_lpf_.update(imu_->getAccZ(), 0.002);
 
   complementary_filter_.setAcc(imu_->getAcc());
   complementary_filter_.setGyro(imu_->getGyro());

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <BasicLinearAlgebra.h>
+#include <config.h>
 
-#define DELTA_T 0.01f
-#define GYR_CMPF_FACTOR 100.0f
-#define GYR_CMPFM_FACTOR 30.0f
-#define INV_GYR_CMPF_FACTOR   (1.0f / (GYR_CMPF_FACTOR  + 1.0f))
-#define INV_GYR_CMPFM_FACTOR  (1.0f / (GYR_CMPFM_FACTOR + 1.0f))
+#define GYR_CMPF_FACTOR 50.0f
+#define MAG_CMPF_FACTOR 30.0f
+#define INV_GYR_CMPF_FACTOR  (1.0f / (GYR_CMPF_FACTOR  + 1.0f))
+#define INV_MAG_CMPF_FACTOR  (1.0f / (MAG_CMPF_FACTOR + 1.0f))
 #define PRESCLAER_ACC 3 // if value=1, it means same rate with gyro, for genral attitude estimation
 
 #define G_MIN 0.7225f // 0.85^2
@@ -45,7 +45,7 @@ public:
     BLA::Matrix<3, 1> est_g_tmp = est_g_;
     BLA::Matrix<3, 1> est_m_tmp = est_m_;
 
-    BLA::Matrix<3, 1> gyro_rotate = gyro_ * DELTA_T;
+    BLA::Matrix<3, 1> gyro_rotate = gyro_ * (float)SYSTEM::MAIN_LOOP_DU / (float)1000.0;
 
     est_m_ = est_m_ + CrossProduct(est_m_tmp, gyro_rotate); //rotation by gyro
     est_g_ = est_g_ + CrossProduct(est_g_tmp, gyro_rotate); //rotation by gyro
@@ -63,7 +63,7 @@ public:
     if(prev_mag_(0) != mag_(0) || prev_mag_(1) != mag_(1) || prev_mag_(2) != mag_(2))
       {
         prev_mag_ = mag_;
-        est_m_ = (est_m_tmp * GYR_CMPFM_FACTOR  + mag_) * INV_GYR_CMPFM_FACTOR;
+        est_m_ = (est_m_tmp * MAG_CMPF_FACTOR  + mag_) * INV_MAG_CMPF_FACTOR;
       }
 
     // Attitude of the estimated vector
