@@ -62,8 +62,6 @@ private:
 
   float beta = -0.01;
 
-  float R = 0.004 * 0.004;
-
   float step_ = 1.0 / 500.0;
 
   int loop_count_ = 0;

@@ -44,8 +44,8 @@ void Alt_kalman::initialize()
   predict_P_ = (float)100.0 * BLA::Eye<3, 3>();
   correction_P_ = (float)100.0 * BLA::Eye<3, 3>();
 
-  Q_ = {0.01, 0.0,
-        0.0,  1.0};
+  Q_ = {0.1, 0.0,
+        0.0,  0.1};
 
   G_ = {step_, 0.0,
         0.0, 0.0,
@@ -54,7 +54,7 @@ void Alt_kalman::initialize()
   G_transpose_ = {step_, 0.0, 0.0,
                   0.0, 0.0, step_};
 
-  R_ = {R};
+  R_ = {0.0001};
 
   H_ = {0.0, 1.0, 0.0};
   H_transpose_ = {0.0,
@@ -77,7 +77,7 @@ void Alt_kalman::update(float z_sens, float accel)
   BLA::Matrix<1, 1> observation = {z_sens};
   BLA::Matrix<1, 1> e = observation - H_ * predict_state_;
 
-  BLA::Matrix<1, 1> S = R + H_ * predict_P_ * H_transpose_;
+  BLA::Matrix<1, 1> S = R_ + H_ * predict_P_ * H_transpose_;
   BLA::Matrix<3, 1> K = predict_P_ * H_transpose_ * Inverse(S);
 
   // estimate state
@@ -90,14 +90,6 @@ void Alt_kalman::update(float z_sens, float accel)
 
   // estimate P
   correction_P_ = (BLA::Eye<3, 3>() - K * H_) * predict_P_;
-
-  // if(loop_count_ % 10 == 0)
-  //   {
-  //     loop_count_ = 0;
-  //     USBSerial.printf("tof, acc_z: %f %f\n", z_sens, accel);
-  //     USBSerial.printf("estimate_state_: %f %f %f\n", estimate_state_(0), estimate_state_(1), estimate_state_(2));
-  //   }
-
 }
 
 void Alt_kalman::reset(void)

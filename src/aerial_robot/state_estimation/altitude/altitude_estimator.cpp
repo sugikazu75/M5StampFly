@@ -4,19 +4,20 @@ void AltitudeEstimator::initialize()
 {
   altitude_kalman_filter_.initialize();
 
-  raw_az_filter_.set_parameter(0.003, 0.0025);
+  raw_az_filter_.set_parameter(0.003, 0.002);
 }
 
 void AltitudeEstimator::update()
 {
-  int16_t raw_range = tof_bottom_get_range();
+  tof_->update();
+  int16_t raw_range = tof_->getTofRange();
   int16_t range = last_input_tof_;
 
   if(raw_range > min_tof_)
     range = raw_range;
 
   if(std::abs(range - last_input_tof_) > tof_diff_torelance_)
-    return;
+    range = last_input_tof_;
 
   float filter_acc_z = raw_az_filter_.update(imu_->getAccZ(), 0.002);
 
